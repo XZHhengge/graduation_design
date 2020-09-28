@@ -37,8 +37,8 @@ class VideoStreamingTest(object):
                     jpg = stream_bytes[first:last + 2]
                     stream_bytes = stream_bytes[last + 2:]
                     image = cv2.imdecode(np.frombuffer(jpg, dtype=np.uint8), cv2.IMREAD_COLOR)
-                    new_screen = process_img(image)
-                    cv2.imshow('window', new_screen)
+                    # new_screen = process_img(image)
+                    # cv2.imshow('window', new_screen)
                     cv2.imshow('image', image)
 
                     if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -65,10 +65,11 @@ def draw_lines(img, lines):
 
 
 def process_img(original_image):
-    processed_img = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)  # 灰度化
-    processed_img = cv2.Canny(processed_img, threshold1=200, threshold2=300)  # 边缘特征
+    # processed_img = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)  # 灰度化
+    processed_img = cv2.Canny(original_image, threshold1=200, threshold2=300)  # 边缘特征
     processed_img = cv2.GaussianBlur(processed_img, (3, 3), 0)  # 高斯模糊
-    vertices = np.array([[10, 500], [10, 300], [300, 200], [500, 200], [800, 300], [800, 500]], np.int32)
+    cv2.imshow("ssaa", processed_img)
+    vertices = np.array([[10, 500], [10, 300], [300, 200], [500, 200], [800, 300], [800, 500]], np.int32) # 坐标自己标定
     processed_img = roi(processed_img, [vertices])  # 不规则ROI区域截取
 
     #                       edges
