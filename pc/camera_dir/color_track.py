@@ -2,7 +2,7 @@
 import math
 import cv2
 import numpy as np
-from pc import camera_configs2 as camera_configs
+from pc.camera_dir import camera_configs2 as camera_configs
 
 # pts = deque(maxlen=16)
 cap1 = cv2.VideoCapture(1)

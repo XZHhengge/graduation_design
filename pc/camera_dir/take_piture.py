@@ -1,7 +1,7 @@
 # *_*coding:utf-8 *_*
 import cv2
 import time
-from pc import camera_configs2 as camera_configs
+from pc.camera_dir import camera_configs2 as camera_configs
 
 AUTO = False  # 自动拍照，或手动按s键拍照
 INTERVAL = 2  # 自动拍照间隔

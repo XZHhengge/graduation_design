@@ -2,7 +2,7 @@
 # coding:utf-8
 import cv2
 import numpy as np
-from pc import camera_configs2 as camera_configs
+from pc.camera_dir import camera_configs2 as camera_configs
  
 
 def nothing(args):

@@ -8,7 +8,7 @@ https://blog.csdn.net/zfjBIT/article/details/91436530?utm_medium=distribute.pc_r
 import numpy as np
 import cv2
 # from pc import camera_configs
-from pc import camera_configs2 as camera_configs
+from pc.camera_dir import camera_configs2 as camera_configs
 
 camera1 = cv2.VideoCapture(1)
 camera2 = cv2.VideoCapture(2)

@@ -36,8 +36,8 @@ class VideoStreamingTest(object):
                     jpg = stream_bytes[first:last + 2]
                     stream_bytes = stream_bytes[last + 2:]
                     image = cv2.imdecode(np.frombuffer(jpg, dtype=np.uint8), cv2.IMREAD_COLOR)
-                    new_screen = process_img(image)
-                    cv2.imshow('window', new_screen)
+                    # new_screen = process_img(image)
+                    # cv2.imshow('window', new_screen)
                     cv2.imshow('image', image)
 
                     if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -45,35 +45,6 @@ class VideoStreamingTest(object):
         finally:
             self.connection.close()
             self.server_socket.close()
-
-
-def roi(img, vertices):
-    mask = np.zeros_like(img)
-    cv2.fillPoly(mask, vertices, 255)
-    masked = cv2.bitwise_and(img, mask)
-    return masked
-
-
-def draw_lines(img, lines):
-    try:
-        for line in lines:
-            coords = line[0]
-            cv2.line(img, (coords[0], coords[1]), (coords[2], coords[3]), [255, 255, 255], 3)
-    except:
-        pass
-
-
-def process_img(original_image):
-    processed_img = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)  # 灰度化
-    processed_img = cv2.Canny(processed_img, threshold1=200, threshold2=300)  # 边缘特征
-    processed_img = cv2.GaussianBlur(processed_img, (3, 3), 0)  # 高斯模糊
-    vertices = np.array([[10, 500], [10, 300], [300, 200], [500, 200], [800, 300], [800, 500]], np.int32)
-    processed_img = roi(processed_img, [vertices])  # 不规则ROI区域截取
-
-    #                       edges
-    lines = cv2.HoughLinesP(processed_img, 1, np.pi / 180, 180, 20, 15)  # 霍夫直线检测
-    draw_lines(processed_img, lines)  # 划线
-    return processed_img
 
 
 if __name__ == '__main__':
