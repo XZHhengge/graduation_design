@@ -4,6 +4,8 @@ import cv2
 import numpy as np
 from pc.camera_dir import camera_configs2 as camera_configs
 
+
+np.seterr(invalid='ignore')
 # pts = deque(maxlen=16)
 cap1 = cv2.VideoCapture(1)
 cap2 = cv2.VideoCapture(2)
@@ -11,7 +13,7 @@ cap1.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
 cap2.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))  # ret = cap.set(3, 640)  # X
 # ret = cap.set(4, 480)  # Y
 
-# 定蓝色的阈值
+# 定蓝色的HSV阈值
 blue_lower = np.array([80, 175, 100])
 blue_upper = np.array([130, 255, 255])
 
@@ -20,8 +22,8 @@ yellow_lower = np.array([20, 132, 86])
 yellow_upper = np.array([31, 255, 255])
 
 # 黄和蓝色
-lower = np.array([20, 132, 152])
-upper = np.array([33, 255, 255])
+# lower = np.array([20, 132, 152])
+# upper = np.array([33, 255, 255])
 # 黑色
 # lower_black = np.array([0, 0, 0])
 # upper_black = np.array([180, 255, 30])
@@ -57,39 +59,40 @@ cv2.createTrackbar("disp12MaxDiff", "config", 1, 255, lambda x: None)
 # cv2.createTrackbar("PreFilterCap", "config", 1, 62, lambda x: None)  # 注意调节的时候这个值必须是奇数
 # cv2.createTrackbar("MaxDiff", "config", 1, 400, lambda x: None)
 
-num_storage = []
+# 消除差异
+FIRST = []
+SECOND = []
 
+# 标记和相机坐标
+
+CAMERA_POS_OF_MAP = (75, 0)
+MARK_POS_OF_MAP = (150, 140)
 
 # num_dict.setdefault()
 
 
-def get_correct_value(value):
+def get_correct_value(values: list, threshold):
     """
     误差消除
-    :param value:
+    :param values:
     :return:
     """
     # 求众数
-    global num_storage
-    if len(num_storage) == 23:
-        num_storage.sort()  # 升序
-        while len(num_storage) > 3:
-            del num_storage[0], num_storage[-1]  # 去掉一个最大值和最小值
-            mean = np.mean(num_storage)  # 平均数
-            center_num = num_storage[int(len(num_storage) / 2)]  # 中位数
-            if abs(mean - center_num) > (mean * 0.1) and abs(mean - center_num) > (center_num * 0.1):  # 误差大于10%
-                continue
-            else:
-                num_storage.clear()
-                print("最终值为", (mean + center_num) / 2.0)
-        # print(mean, nu)
-        print("误差计算出错")
+    global FIRST
+    slope = [(y / x) for x, y in values]
+    while len(values) > 0:
+        mean = np.mean(slope)
+        diff = [abs(s - mean) for s in slope]
 
-    else:
-        # if isinstance(value, tuple):
-        #     num_storage.append(value[0] + value[1])
-        # else:
-        num_storage.append(value)
+        idx = np.argmax(diff)
+        if diff[idx] > threshold:
+            slope.pop(idx)
+            values.pop(idx)
+        else:
+
+            # return (np.mean())
+            print(values[0])
+            return values[0]
 
 
 def get_2point_distance(point1, point2, shape: int):
@@ -124,20 +127,33 @@ def get_coordinate(mark_pos_ofcamera: tuple, power_pos_ofcamera: tuple,
     if car_center != 'inf' and mark_deepth != 'inf':
         if car_deepth > 0 and mark_deepth > 0:
             # car_deepth /= 10.0
-            mark_deepth /= 10.0
+            mark_deepth /= 10.0 # 毫米转化为厘米
             # if abs(mark_deepth - math.sqrt(mark_pos_ofmap[0]**2 + mark_pos_ofmap[1] ** 2)) > 50:
             #     print("标记与相机测量误差太大")
             # else:
             # 计算小车与标记的横向距离,两点之间的距离在除以5，这个5是通过实际测量和图像点计算出来的
-            x_length = math.sqrt((power_pos_ofcamera[0] - mark_pos_ofcamera[0]) ** 2
-                                 + ((power_pos_ofcamera[1] - mark_pos_ofcamera[1]) ** 2)) / 5.0
+            # x_length = math.sqrt((power_pos_ofcamera[0] - mark_pos_ofcamera[0]) ** 2
+            #                      + ((power_pos_ofcamera[1] - mark_pos_ofcamera[1]) ** 2)) / 5.0
+            x_length = get_2point_distance(point1=power_pos_ofcamera, point2=mark_pos_ofcamera, shape=2) / 5.0
             # 在通过标记的坐标得到小车的横向坐标
             x = mark_pos_ofmap[0] - x_length
             # print("小车与标记的距离为{}, 横向坐标为{}".format(x_length, x))
             # 再用勾股定理得到y
             y = math.sqrt(car_deepth ** 2 - (x - camera_pos_ofmap[0]) ** 2)
-            print("坐标为{},{}".format(x, y/10.0))
-            return x, y / 10
+            global FIRST
+            if len(FIRST) == 40:
+                if SECOND == 10:
+                    correct_coordinate = get_correct_value(SECOND, threshold=0.1)
+                    print(correct_coordinate)
+                    SECOND.clear()
+                else:
+                    SECOND.append(get_correct_value(FIRST, threshold=0.1))
+                    FIRST.clear()
+
+            else:
+                FIRST.append([x, y/10.0])
+            # print("坐标为{},{}".format(x, y/10.0))
+            return correct_coordinate
 
 
 while True:
@@ -250,10 +266,6 @@ while True:
                 if M2["m00"]:
                     center2 = (int(M2["m10"] / M2["m00"]), int(M2["m01"] / M2["m00"]))  # 车轮
                     length = get_2point_distance(center1, center2, 2)
-                    # length = int(
-                    #     math.sqrt(
-                    #         int((center1[0] - center2[0]) ** 2) + int((center1[1] - center2[1]) ** 2)))  # 计算两点之间的距离
-                    # print(length, center1, center2)
                     if length < 400:
                         car_center = (int((center1[0] + center2[0]) / 2), int((center1[1] + center2[1]) / 2))  # 取两点之间的
                     else:
@@ -264,11 +276,7 @@ while True:
                     print("没有黄色目标")
             else:
                 print("没有蓝色目标")
-    # M3 = get_color_center(img1_rectified, red_lower, red_lower) if M3: center3 = (int(M3["m10"] / M3["m00"]),
-    # int(M3["m01"] / M3["00"])) print(center3) print(M1, M2) center = (int(int(M1["m10"] / M1["m00"])+int(M2["m10"]
-    # / M2["m00"])/2), int(int(M1["m01"] / M1["m00"])+ int(M2["m01"] / M2["m00"])/2)) center2 = (int(M2["m10"] / M2[
-    # "m00"]), ) print(center+center2) print(center[0], center[1]) print('threeD', threeD[center[0]][center[1]])
-    # print()
+
 
     cv2.imshow('frame1', dsp)
     if len(cnts3) > 0:
@@ -280,10 +288,8 @@ while True:
             #         print(threeD.shape)
             #         print(threeD)
             if car_center:
-                # print("red mark of blue distance: ",
-                #       int(math.sqrt(int((red_center[0] - center2[0]) ** 2) + int((center2[1] - red_center[1]) ** 2))) / 5.0)
-                get_coordinate(red_center, car_center, camera_pos_ofmap=(75, 0), threeD=threeD,
-                               mark_pos_ofmap=(150, 140))
+                get_coordinate(red_center, car_center, camera_pos_ofmap=CAMERA_POS_OF_MAP, threeD=threeD,
+                               mark_pos_ofmap=MARK_POS_OF_MAP)
 
             # print("红色坐标为", threeD[red_center[1]][red_center[0]])
         else:
@@ -296,9 +302,9 @@ while True:
     # print(cv2.)
     # cv2
     # cv2.moveWindow('frame1', x=0, y=0)  # 原地
-    cv2.imshow('mask1', mask1)
-    cv2.imshow('mask2', mask2)
-    cv2.imshow('mask3', mask3)
+    # cv2.imshow('mask1', mask1)
+    # cv2.imshow('mask2', mask2)
+    # cv2.imshow('mask3', mask3)
     # cv2.moveWindow('mask', x=frame1.shape[1], y=0)  # 右边
     # cv2.imshow('res', res1)
     # cv2.moveWindow('res', y=frame1.shape[0], x=0)  # 下边
