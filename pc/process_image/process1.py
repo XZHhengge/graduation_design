@@ -44,17 +44,16 @@ def process_img(original_image):
     processed_img = cv2.Canny(original_image, threshold1=200, threshold2=300)  # 边缘特征
     # cv2.imshow("ssaa", processed_img)
     processed_img = cv2.GaussianBlur(processed_img, (3, 3), 0)  # 高斯模糊
-    vertices = np.array([[0, 370], [0, 240], [190, 0], [360, 0], [640, 240], [640, 370]], np.int32)
+    vertices = np.array([[0, 370], [0, 240], [258, 25], [410, 60], [640, 240], [640, 370]], np.int32)
     processed_img = roi(processed_img, [vertices])  # 不规则ROI区域截取
 
     #                       edges
-    lines = cv2.HoughLinesP(processed_img, 1, np.pi / 180, 180, 20, 15)  # 霍夫直线检测
+    lines = cv2.HoughLinesP(image=processed_img, rho=1, theta=np.pi / 180, threshold=100, minLineLength=40, maxLineGap=30)  # 霍夫直线检测
     draw_lines(processed_img, lines)  # 划线
     return processed_img
 
 
 def process_img2(img):
-
     # 1. 灰度化、滤波和Canny
     # gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
     blur_gray = cv2.GaussianBlur(img, (blur_ksize, blur_ksize), 1)
@@ -65,14 +64,14 @@ def process_img2(img):
     points = np.array([[0, 370], [0, 240], [190, 0], [360, 0], [640, 240], [640, 370]], np.int32)
     roi_edges = roi_mask(edges, [points])
     # 3. 霍夫直线提取
-    drawing, lines = hough_lines(roi_edges, rho, theta, threshold, min_line_len, max_line_gap)
+    drawing, lines = hough_lines(roi_edges, rho, theta, threshold, min_line_len, max_line_gap)  # 一条直线四个坐标
     print(len(lines))
-    print(lines)
+    print(lines[0])
     # 4. 车道拟合计算
-    draw_lanes2(drawing, lines)     # 画出直线检测结果
+    # draw_lanes2(drawing, lines)  # 画出直线检测结果
     # 5. 最终将结果合在原图上
     # result = cv2.addWeighted(img, 0.9, drawing, 0.2, 0)
-    # cv2.imshow()
+    # cv2.imshow("drawing", roi_edges)
     return drawing
 
 
@@ -144,6 +143,7 @@ def clean_lines(lines, threshold):
             lines.pop(idx)
         else:
             break
+
 
 def least_squares_fit(point_list, ymin, ymax):
     # 最小二乘法拟合

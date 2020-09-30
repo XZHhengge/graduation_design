@@ -45,9 +45,9 @@ def ReceiveVideo():
                 decimg = cv2.imdecode(data, cv2.IMREAD_GRAYSCALE)  # 将数组解码成图像
                 # print(decimg.shape)
                 cv2.imshow("decimg", decimg)
-                # pro1 = process1.process_img(decimg)
+                pro1 = process1.process_img(decimg)
                 # cv2.imshow("process2", process1.process_img2(decimg))
-                # cv2.imshow('process1', pro1)  # 显示图像
+                cv2.imshow('process1', pro1)  # 显示图像
 
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
