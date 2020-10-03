@@ -19,7 +19,6 @@ max_line_gap = 20
 
 
 def process_img2(img):
-
     # 1. 灰度化、滤波和Canny
 
     # print(img)
@@ -59,28 +58,57 @@ def hough_lines(img, rho, theta, threshold, min_line_len, max_line_gap):
 
     # 新建一副空白画布
     drawing = np.zeros((img.shape[0], img.shape[1], 3), dtype=np.uint8)
-    draw_lanes2(drawing, lines, threshold=0.05)     # 画出直线检测结果
+    draw_lanes2(drawing, lines, threshold=0.05)  # 画出直线检测结果
 
     return drawing, lines
 
 
-def count_verdict(lines, threshold):
+def count_verdict(lines, threshold, ver_threshold):
     '''
-    两两直线之间计算斜率，求出约等于直角的个数
+    两两直线之间计算斜率，求出约等于直角的个数, 参考 https://blog.csdn.net/qq_36135484/article/details/79450998
     :param lines:
     :param threshold:
     :return:
     '''
     for c in combinations(lines, 2):
-        print(c[0], c[1])
-            # print(point[0], point[1], point[2], point[3])
+        # print(c[0], c[1])
+        x1, y1, x2, y2 = c[0][0][0], c[0][0][1], c[0][0][2], c[0][0][3]
+        x3, y3, x4, y4 = c[1][0][0], c[1][0][1], c[1][0][2], c[1][0][3]
+        if abs((x2 - x1) * (y4 - y3) - (x4 - x3) * (y2 - y1)) < threshold:  # gongxaing
+            if (x1 == x3) and ((y3 - y1) * (y3 - y2) <= threshold or (y4 - y1) * (y4 - y2) <= threshold):
+                k1 = (y2 - y1) / (x2 - x1)
+                k2 = (y3 - y4) / (x3 - x4)
+                print(k1 * k2)
+                if 1 + ver_threshold > abs(k1 * k2) > 1-ver_threshold:
+                    print("垂直")
+                    print(x1, y1, x2, y2, x3, y3, x4, y4)
+                # print("相交yes")
+        else:
+            m = (x2 - x1) * (y3 - y1) - (x3 - x1) * (y2 - y1)
+            n = (x2 - x1) * (y4 - y1) - (x4 - x1) * (y2 - y1)
+            p = (x4 - x3) * (y1 - y3) - (x1 - x3) * (y4 - y3)
+            q = (x4 - x3) * (y2 - y3) - (x2 - x3) * (y4 - y3)
+            if m * n <= threshold and p * q <= threshold:
+                print(m*n, threshold)
+                k1 = (y2 - y1) / (x2 - x1)
+                k2 = (y3 - y4) / (x3 - x4)
+                print(k1 * k2)
+                if 1 + ver_threshold > abs(k1 * k2) > 1-ver_threshold:
+                    print("垂直")
+                    print(x1, y1, x2, y2, x3, y3, x4, y4)
+                # print(x1, y1, x2, y2, x3, y3, x4, y4)
+                # print("相交yes")
+        # if abs(c[0])
+        # print(point[0], point[1], point[2], point[3])
         # if c < threshold and c > -threshold:
         #     print(c)
+
 
 def draw_lanes2(img, lines, threshold):
     # a. 划分左右车道和水平车道
     left_lines, right_lines, verdict = [], [], []
-    count_verdict(lines, 0.5)
+    count_verdict(lines, threshold=0.1, ver_threshold=0.3000000000000000)
+    # count_verdict(lines, threshold=0.1, ver_threshold=0.3000000000000000)
     for line in lines:
         for x1, y1, x2, y2 in line:
             k = (y2 - y1) / (x2 - x1)  # 斜率
@@ -95,12 +123,10 @@ def draw_lanes2(img, lines, threshold):
         return
     # draw_lines(img, left_lines)
     # draw_lines(img, right_lines)
-    # print(left_lines)
-    # print(right_lines)
-    # print(verdict)
-    # draw_lines(img, right_lines, dir=1)  # 黄色
-    # draw_lines(img, left_lines, dir=2)  # 红色
-    # draw_lines(img, verdict, dir=3)  # 绿色
+
+    draw_lines(img, right_lines, dir=1)  # 黄色
+    draw_lines(img, left_lines, dir=2)  # 红色
+    draw_lines(img, verdict, dir=3)  # 绿色
     # draw_lines(img, right_lines)
     # b. 清理异常数据
     # clean_lines(left_lines, 0.1)
@@ -127,7 +153,7 @@ def draw_lanes2(img, lines, threshold):
     # cv2.line(img, right_results[0], right_results[1], (0, 255, 0), thickness)
 
 
-def draw_lines(img, lines, dir:int):
+def draw_lines(img, lines, dir: int):
     try:
         if dir == 1:
             color = [105, 255, 255]  # 黄色
@@ -143,7 +169,6 @@ def draw_lines(img, lines, dir:int):
         pass
 
 
-
 def clean_lines(lines, threshold):
     # 迭代计算斜率均值，排除掉与差值差异较大的数据
     slope = [(y2 - y1) / (x2 - x1) for line in lines for x1, y1, x2, y2 in line]
@@ -156,6 +181,7 @@ def clean_lines(lines, threshold):
             lines.pop(idx)
         else:
             break
+
 
 def least_squares_fit(point_list, ymin, ymax):
     # 最小二乘法拟合
@@ -173,8 +199,8 @@ def least_squares_fit(point_list, ymin, ymax):
 
 
 if __name__ == '__main__':
-    # file = '/home/perfectman/PycharmProjects/graduation_design/raspberryPi/straight.jpg'
-    file = '/home/perfectman/PycharmProjects/graduation_design/raspberryPi/crossroads.jpg'
+    file = '/home/perfectman/PycharmProjects/graduation_design/raspberryPi/straight.jpg'
+    # file = '/home/perfectman/PycharmProjects/graduation_design/raspberryPi/crossroads.jpg'
     # file = '/home/perfectman/PycharmProjects/graduation_design/raspberryPi/turn_left.jpg'
     img = cv2.imread(file)
 
@@ -184,7 +210,3 @@ if __name__ == '__main__':
     cv2.imshow("process2", process_img2(img))
     # cv2.imshow("process1", process_img(img))
     cv2.waitKey(0)
-
-
-
-
