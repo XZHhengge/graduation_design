@@ -199,9 +199,9 @@ while True:
     # mask1 = cv2.dilate(mask1, None, iterations=2)  # 膨胀
     # mask2 = cv2.dilate(mask2, None, iterations=2)  # 膨胀
     # mask = cv2.findContours(mask.copy())
-    cnts1 = cv2.findContours(mask1.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[1]  # 寻找轮廓
-    cnts2 = cv2.findContours(mask2.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[1]  # 寻找轮廓
-    cnts3 = cv2.findContours(mask3.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[1]  # 寻找轮廓
+    cnts1 = cv2.findContours(mask1.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[1]  # 寻找蓝色轮廓
+    cnts2 = cv2.findContours(mask2.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[1]  # 寻找黄色轮廓
+    cnts3 = cv2.findContours(mask3.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[1]  # 寻找红色轮廓
 
     num = cv2.getTrackbarPos("num", "config")  # 即最大视差值与最小视差值之差, 窗口大小必须是16的整数倍，int 型
     blockSize = cv2.getTrackbarPos("blockSize",

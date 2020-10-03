@@ -44,11 +44,11 @@ def process_img(original_image):
     processed_img = cv2.Canny(original_image, threshold1=200, threshold2=300)  # 边缘特征
     # cv2.imshow("ssaa", processed_img)
     processed_img = cv2.GaussianBlur(processed_img, (3, 3), 0)  # 高斯模糊
-    vertices = np.array([[0, 370], [0, 240], [258, 25], [410, 60], [640, 240], [640, 370]], np.int32)
+    vertices = np.array([[0, 370], [0, 240], [130, 125], [470, 125], [640, 240], [640, 370]], np.int32)
     processed_img = roi(processed_img, [vertices])  # 不规则ROI区域截取
 
     #                       edges
-    lines = cv2.HoughLinesP(image=processed_img, rho=1, theta=np.pi / 180, threshold=100, minLineLength=40, maxLineGap=30)  # 霍夫直线检测
+    lines = cv2.HoughLinesP(image=processed_img, rho=1, theta=np.pi / 180, threshold=100, minLineLength=30, maxLineGap=30)  # 霍夫直线检测
     draw_lines(processed_img, lines)  # 划线
     return processed_img
 
@@ -62,6 +62,7 @@ def process_img2(img):
     # cv2.imshow("edges", edges)
     # 2. 2. 标记四个坐标点用于ROI截取
     points = np.array([[0, 370], [0, 240], [190, 0], [360, 0], [640, 240], [640, 370]], np.int32)
+    # points = np.array([[0, 0], [0, 480], [480, 640], [640, 0]], np.int32) # 全屏
     roi_edges = roi_mask(edges, [points])
     # 3. 霍夫直线提取
     drawing, lines = hough_lines(roi_edges, rho, theta, threshold, min_line_len, max_line_gap)  # 一条直线四个坐标
