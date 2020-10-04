@@ -63,6 +63,23 @@ def hough_lines(img, rho, theta, threshold, min_line_len, max_line_gap):
     return drawing, lines
 
 
+def cross(p1: tuple, p2: tuple, p3: tuple):
+    '''
+    跨立实验，若相交：如果两线段相交，则两线段必然相互跨立对方.
+    若A1A2跨立B1B2，则矢量( A1 - B1 ) 和(A2-B1)位于矢量(B2-B1)的两侧，
+    即(A1-B1) × (B2-B1) * (A2-B1) × (B2-B1)<0
+    :param p1:  点1
+    :param p2:  点2
+    :param p3:  点3
+    :return:
+    '''
+    x1 = p2[0] - p1[0]
+    y1 = p2[1] - p1[1]
+    x2 = p3[0] - p1[0]
+    y2 = p3[1] - p1[1]
+    return x1 * y2 - x2 * y1
+
+
 def count_verdict(lines, threshold, ver_threshold):
     '''
     两两直线之间计算斜率，求出约等于直角的个数, 参考 https://blog.csdn.net/qq_36135484/article/details/79450998
@@ -74,34 +91,48 @@ def count_verdict(lines, threshold, ver_threshold):
         # print(c[0], c[1])
         x1, y1, x2, y2 = c[0][0][0], c[0][0][1], c[0][0][2], c[0][0][3]
         x3, y3, x4, y4 = c[1][0][0], c[1][0][1], c[1][0][2], c[1][0][3]
-        if abs((x2 - x1) * (y4 - y3) - (x4 - x3) * (y2 - y1)) < threshold:  # gongxaing
-            if (x1 == x3) and ((y3 - y1) * (y3 - y2) <= threshold or (y4 - y1) * (y4 - y2) <= threshold):
-                k1 = (y2 - y1) / (x2 - x1)
-                k2 = (y3 - y4) / (x3 - x4)
-                print(k1 * k2)
-                if 1 + ver_threshold > abs(k1 * k2) > 1-ver_threshold:
-                    print("垂直")
-                    print(x1, y1, x2, y2, x3, y3, x4, y4)
-                # print("相交yes")
-        else:
-            m = (x2 - x1) * (y3 - y1) - (x3 - x1) * (y2 - y1)
-            n = (x2 - x1) * (y4 - y1) - (x4 - x1) * (y2 - y1)
-            p = (x4 - x3) * (y1 - y3) - (x1 - x3) * (y4 - y3)
-            q = (x4 - x3) * (y2 - y3) - (x2 - x3) * (y4 - y3)
-            if m * n <= threshold and p * q <= threshold:
-                print(m*n, threshold)
-                k1 = (y2 - y1) / (x2 - x1)
-                k2 = (y3 - y4) / (x3 - x4)
-                print(k1 * k2)
-                if 1 + ver_threshold > abs(k1 * k2) > 1-ver_threshold:
-                    print("垂直")
-                    print(x1, y1, x2, y2, x3, y3, x4, y4)
-                # print(x1, y1, x2, y2, x3, y3, x4, y4)
-                # print("相交yes")
-        # if abs(c[0])
-        # print(point[0], point[1], point[2], point[3])
-        # if c < threshold and c > -threshold:
-        #     print(c)
+        # 快速排斥，以l1、l2为对角线的矩形必相交，否则两线段不相交
+        if (max(x1, x2) >= min(x3, x4)  # 矩形1最右端大于矩形2最左端
+                and max(x3, x4) >= min(x1, x2)  # 矩形2最右端大于矩形最左端
+                and max(y1, y2) >= min(y3, y4)  # 矩形1最高端大于矩形最低端
+                and max(y3, y4) >= min(y1, y2)):  # 矩形2最高端大于矩形最低端
+            if cross(p1=(x1, y1), p2=(x2, y2), p3=(x3, y3)) * cross(p1=(x1, y1), p2=(x2, y2),
+                                                                    p3=(x4, y4)) <= 0 and cross(p1=(x3, y3),
+                                                                                                p2=(x4, y4),
+                                                                                                p3=(x1, y1)) * cross(
+                    p1=(x3, y3), p2=(x4, y4), p3=(x2, y2)) <= 0:
+                print(x1, y1, x2, y2, x3, y3, x4, y4)
+                print("相交")
+            # else:
+            # print("")
+        # if abs((x2 - x1) * (y4 - y3) - (x4 - x3) * (y2 - y1)) < threshold:  # gongxaing
+        #     if (x1 == x3) and ((y3 - y1) * (y3 - y2) <= threshold or (y4 - y1) * (y4 - y2) <= threshold):
+        #         k1 = (y2 - y1) / (x2 - x1)
+        #         k2 = (y3 - y4) / (x3 - x4)
+        #         print(k1 * k2)
+        #         if 1 + ver_threshold > abs(k1 * k2) > 1-ver_threshold:
+        #             print("垂直")
+        #             print(x1, y1, x2, y2, x3, y3, x4, y4)
+        #         # print("相交yes")
+        # else:
+        #     m = (x2 - x1) * (y3 - y1) - (x3 - x1) * (y2 - y1)
+        #     n = (x2 - x1) * (y4 - y1) - (x4 - x1) * (y2 - y1)
+        #     p = (x4 - x3) * (y1 - y3) - (x1 - x3) * (y4 - y3)
+        #     q = (x4 - x3) * (y2 - y3) - (x2 - x3) * (y4 - y3)
+        #     if m * n <= threshold and p * q <= threshold:
+        #         print(m*n, threshold)
+        #         k1 = (y2 - y1) / (x2 - x1)
+        #         k2 = (y3 - y4) / (x3 - x4)
+        #         print(k1 * k2)
+        #         if 1 + ver_threshold > abs(k1 * k2) > 1-ver_threshold:
+        #             print("垂直")
+        #             print(x1, y1, x2, y2, x3, y3, x4, y4)
+        #         # print(x1, y1, x2, y2, x3, y3, x4, y4)
+        #         # print("相交yes")
+        # # if abs(c[0])
+        # # print(point[0], point[1], point[2], point[3])
+        # # if c < threshold and c > -threshold:
+        # #     print(c)
 
 
 def draw_lanes2(img, lines, threshold):
@@ -163,10 +194,14 @@ def draw_lines(img, lines, dir: int):
             color = [101, 198, 39]  # 绿色
         for line in lines:
             coords = line[0]
-            cv2.line(img, (coords[0], coords[1]), (coords[2], coords[3]), color, 3)
+            cv2.line(img, (coords[0], coords[1]), (coords[2], coords[3]), color, 5)
         # cv2.imshow("line", img)
     except:
         pass
+
+
+def merge_lines(lines: list):
+    return lines
 
 
 def clean_lines(lines, threshold):
@@ -199,9 +234,9 @@ def least_squares_fit(point_list, ymin, ymax):
 
 
 if __name__ == '__main__':
-    file = '/home/perfectman/PycharmProjects/graduation_design/raspberryPi/straight.jpg'
+    # file = '/home/perfectman/PycharmProjects/graduation_design/raspberryPi/straight.jpg'
     # file = '/home/perfectman/PycharmProjects/graduation_design/raspberryPi/crossroads.jpg'
-    # file = '/home/perfectman/PycharmProjects/graduation_design/raspberryPi/turn_left.jpg'
+    file = '/home/perfectman/PycharmProjects/graduation_design/raspberryPi/turn_left.jpg'
     img = cv2.imread(file)
 
     img = cv2.resize(img, (640, 480))
