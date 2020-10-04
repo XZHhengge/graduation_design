@@ -95,6 +95,19 @@ def get_coordinate(mark_pos_ofcamera: tuple, power_pos_ofcamera: tuple,
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/2020092619254525.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwOTY1MTc3,size_16,color_FFFFFF,t_70#pic_center)
 
 
+## 小车自动驾驶：方法一：深度学习，方法二：通过车道的直角判断
+
+# 方法二：
+ 1.灰度化 
+ 2.高斯模糊
+ 3.Canny边缘检测
+ 4.不规则ROI区域截取
+ 5.霍夫直线检测
+ 6.车道计算
+ 7.直角计算
+
+
+
 ## opencv画车道
 [[1]](http://codec.wang/#/opencv/basic/challenge-03-lane-road-detection)
 [[2]](https://github.com/Sentdex/pygta5/blob/master/Tutorial%20Codes/Part%201-7/part-5-line-finding.py)
