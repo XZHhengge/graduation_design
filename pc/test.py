@@ -24,8 +24,8 @@ def process_img2(img):
     # 1. 灰度化、滤波和Canny
 
     # print(img)
-    gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-    blur_gray = cv2.Canny(gray, canny_lth, canny_hth)
+    # img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    blur_gray = cv2.Canny(img, canny_lth, canny_hth)
 
     blur_gray = cv2.GaussianBlur(blur_gray, (blur_ksize, blur_ksize), 0)
     # cv2.imshow("eeaa", edges)
@@ -174,39 +174,39 @@ def draw_lanes2(img, lines, threshold):
 
     # print(right_lines)
     # print(left_lines)
-    # print(verdict)
+    # print("垂直个数", len(verdict))
     # draw_lines(img, right_lines)
     # b. 清理异常数据
-    clean_lines(left_lines, 0.1)
-    clean_lines(right_lines, 0.1)
-    clean_lines(verdict, 0.1)
+    # clean_lines(left_lines, 0.1)
+    # clean_lines(right_lines, 0.01)
+    # clean_lines(verdict, 0.1)
 
     # show_lines_data(right_lines, label='right')
-    show_lines_data(left_lines, label='left')
+    # show_lines_data(left_lines, label='left')
     # show_lines_data(verdict, label='verdict')
     draw_lines(img, right_lines, dir=1)  # 黄色
     draw_lines(img, left_lines, dir=2)  # 红色
-    # draw_lines(img, verdict, dir=3)  # 绿色
+    draw_lines(img, verdict, dir=3)  # 绿色
     # c. 得到左右车道线点的集合，拟合直线
-    left_points = [(x1, y1) for line in left_lines for x1, y1, x2, y2 in line]
-    # print(left_points)
-    left_points = left_points + [(x2, y2) for line in left_lines for x1, y1, x2, y2 in line]
-    right_points = [(x1, y1) for line in right_lines for x1, y1, x2, y2 in line]
-    right_points = right_points + [(x2, y2) for line in right_lines for x1, y1, x2, y2 in line]
+    # left_points = [(x1, y1) for line in left_lines for x1, y1, x2, y2 in line]
+    # # print(left_points)
+    # left_points = left_points + [(x2, y2) for line in left_lines for x1, y1, x2, y2 in line]
+    # right_points = [(x1, y1) for line in right_lines for x1, y1, x2, y2 in line]
+    # right_points = right_points + [(x2, y2) for line in right_lines for x1, y1, x2, y2 in line]
 
-    left_results = least_squares_fit(left_points, 325, img.shape[0])
+    # left_results = least_squares_fit(left_points, 325, img.shape[0])
     # show_lines_data(left_results, label="left_result")
-    right_results = least_squares_fit(right_points, 325, img.shape[0])
-    print(left_results, "lest")
-    print(right_results, "right")
+    # right_results = least_squares_fit(right_points, 325, img.shape[0])
+    # print(left_results, "lest")
+    # print(right_results, "right")
     # 注意这里点的顺序
     # vtxs = np.array([[left_results[1], left_results[0], right_results[0], right_results[1]]])
     # d. 填充车道区域
     # cv2.fillPoly(img, vtxs, (0, 255, 0))
 
     # 或者只画车道线
-    cv2.line(img, left_results[0], left_results[1], (105, 255, 255), 5)
-    cv2.line(img, right_results[0], right_results[1], (101, 30, 255), 5)
+    # cv2.line(img, left_results[0], left_results[1], (105, 255, 255), 5)
+    # cv2.line(img, right_results[0], right_results[1], (101, 30, 255), 5)
     # draw_lines(img, left_results, dir=1)  # 黄色
     # draw_lines(img, right_results, dir=2)  # 红色
     draw_lines(img, verdict, dir=3)  # 绿色
@@ -272,8 +272,8 @@ def least_squares_fit(point_list, ymin, ymax):
 
 if __name__ == '__main__':
     # file = '/home/perfectman/PycharmProjects/graduation_design/raspberryPi/straight.jpg'
-    file = '/home/perfectman/PycharmProjects/graduation_design/raspberryPi/crossroads.jpg'
-    # file = '/home/perfectman/PycharmProjects/graduation_design/raspberryPi/turn_left.jpg'
+    # file = '/home/perfectman/PycharmProjects/graduation_design/raspberryPi/crossroads.jpg'
+    file = '/home/perfectman/PycharmProjects/graduation_design/raspberryPi/turn_left.jpg'
     img = cv2.imread(file)
 
     img = cv2.resize(img, (640, 480))

@@ -97,7 +97,7 @@ def get_coordinate(mark_pos_ofcamera: tuple, power_pos_ofcamera: tuple,
 
 ## 小车自动驾驶：方法一：深度学习，方法二：通过车道的直角判断
 
-# 方法二：
+# 方法二的步骤：
  1.灰度化 
  2.高斯模糊
  3.Canny边缘检测

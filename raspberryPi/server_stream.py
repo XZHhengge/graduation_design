@@ -1,8 +1,10 @@
+# -*- coding:utf-8 -*-
 import socket
-import time
 import cv2
 import numpy
+import threading
 from pc.process_image import process1
+from pc.test import process_img2
 
 
 conn = None
@@ -38,6 +40,8 @@ def ReceiveVideo():
     # 接受TCP连接并返回（conn,address）,其中conn是新的套接字对象，可以用来接收和发送数据。addr是连接客户端的地址。
     # 没有连接则等待有连接
     get_accept()
+    t = threading.Thread(target=send, args=(conn,))
+    t.start()
     try:
         while 1:
             # start = time.time()  # 用于计算帧率信息
@@ -50,9 +54,10 @@ def ReceiveVideo():
                 # print(decimg.shape)
                 cv2.startWindowThread()
                 cv2.imshow("decimg", decimg)
-                pro1 = process1.process_img(decimg)
+                pro1 = process_img2(decimg)
                 # cv2.imshow("process2", process1.process_img2(decimg))
                 cv2.imshow('process1', pro1)  # 显示图像
+
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
             else:
@@ -65,6 +70,15 @@ def ReceiveVideo():
     finally:
         s.close()
         cv2.destroyAllWindows()
+
+
+def send(conn):
+    while 1:
+        x = input("input")
+        if x:
+            conn.send(bytes(x, encoding='utf-8'))
+        else:
+            continue
 
 
 if __name__ == '__main__':
