@@ -5,7 +5,8 @@ import numpy
 import threading
 from pc.process_image import process1
 from pc.test import process_img2
-
+import pygame
+from pygame.locals import *
 
 conn = None
 
@@ -73,12 +74,34 @@ def ReceiveVideo():
 
 
 def send(conn):
+    pygame.init()
+    pygame.display.set_mode((250, 250))
     while 1:
-        x = input("input")
-        if x:
-            conn.send(bytes(x, encoding='utf-8'))
-        else:
-            continue
+        for event in pygame.event.get():
+            if event.type == KEYDOWN:
+                key_input = pygame.key.get_pressed()
+                if key_input[pygame.K_RETURN]:
+                    conn.send(b't')
+                    print("turn around")
+                elif key_input[pygame.K_LEFT]:
+                    print("turn Left")
+                    conn.send(b'a')
+                elif key_input[pygame.K_SPACE]:
+                    conn.send(b's')
+                    print("stop")
+                elif key_input[pygame.K_RIGHT]:
+                    conn.send(b'd')
+                    print("turn right")
+                elif key_input[pygame.K_DOWN]:
+                    conn.send(b'ss')
+                    print("backward")
+                elif key_input[pygame.K_UP]:
+                    conn.send(b'w')
+                    print("Forward")
+
+
+        # else:
+        #     continue
 
 
 if __name__ == '__main__':
