@@ -4,7 +4,108 @@ import cv2
 import numpy as np
 from pc.camera_dir import camera_configs2 as camera_configs
 
+CAR_X, CAR_Y = None, None
 
+# 消除差异
+FIRST = []
+SECOND = []
+
+# 标记和相机坐标
+
+CAMERA_POS_OF_MAP = (75, 0)
+MARK_POS_OF_MAP = (150, 140)
+
+
+def get_correct_value(values: list, threshold):
+    """
+    误差消除
+    :param values:
+    :return:
+    """
+    # 求众数
+    # global FIRST
+    slope = [(y / x) for x, y in values]
+    while len(values) > 0:
+        mean = np.mean(slope)
+        diff = [abs(s - mean) for s in slope]
+
+        idx = np.argmax(diff)
+        if diff[idx] > threshold:
+            slope.pop(idx)
+            values.pop(idx)
+        else:
+
+            # return (np.mean())
+            # print(values[0])
+            return values[0]
+
+
+def get_2point_distance(point1, point2, shape: int):
+    if shape == 1:
+        return abs(point1 - point2)
+    elif shape == 2:
+        return int(math.sqrt((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2))
+
+
+def get_coordinate(mark_pos_ofcamera: tuple, power_pos_ofcamera: tuple,
+                   camera_pos_ofmap: tuple, threeD, mark_pos_ofmap, car_center) -> tuple:
+    '''
+        一般位置的摆放如下，单位都是cm
+    ---------------------------------MARK
+    -                                   -
+    -                        CAR        -
+    -                       / |         -
+    -                      /  |         -
+    -                     /   |         -
+    -                    /    |         -
+    -                   /     |         -
+    ---------------CAMERA-----------------
+    :param mark_pos_ofmap: 标记物在真实地图上的位置
+    :param camera_pos_ofmap: 相机在真实地图上的位置
+    :param power_pos_ofcamera: 电池在相机上的位置
+    :param mark_pos_ofcamera: 标记物在相机上的位置
+    :param threeD:   使用MATLAB矫正和opencv得到的深度矩阵
+    '''
+    #  计算深度
+    car_deepth = threeD[power_pos_ofcamera[1]][power_pos_ofcamera[0]][-1]
+    mark_deepth = threeD[mark_pos_ofcamera[1]][mark_pos_ofcamera[0]][-1]
+    if car_center != 'inf' and mark_deepth != 'inf':
+        if car_deepth > 0 and mark_deepth > 0:
+            # car_deepth /= 10.0
+            mark_deepth /= 10.0  # 毫米转化为厘米
+            # if abs(mark_deepth - math.sqrt(mark_pos_ofmap[0]**2 + mark_pos_ofmap[1] ** 2)) > 50:
+            #     print("标记与相机测量误差太大")
+            # else:
+            # 计算小车与标记的横向距离,两点之间的距离在除以5，这个5是通过实际测量和图像点计算出来的
+            # x_length = math.sqrt((power_pos_ofcamera[0] - mark_pos_ofcamera[0]) ** 2
+            #                      + ((power_pos_ofcamera[1] - mark_pos_ofcamera[1]) ** 2)) / 5.0
+            x_length = get_2point_distance(point1=power_pos_ofcamera, point2=mark_pos_ofcamera, shape=2) / 5.0
+            # 在通过标记的坐标得到小车的横向坐标
+            x = mark_pos_ofmap[0] - x_length
+            # print("小车与标记的距离为{}, 横向坐标为{}".format(x_length, x))
+            # 再用勾股定理得到y
+            y = math.sqrt(car_deepth ** 2 - (x - camera_pos_ofmap[0]) ** 2)
+            # global FIRST
+            global CAR_X, CAR_Y
+            if len(FIRST) == 40:
+                (CAR_X, CAR_Y) = tuple(get_correct_value(FIRST, threshold=0.1))
+                # print(CAR_X, CAR_Y)
+                FIRST.clear()
+                # if len(SECOND) == 10:
+                #     (CAR_X, CAR_Y) = tuple(get_correct_value(SECOND, threshold=0.1))
+                #     print(CAR_X, CAR_Y)
+                #     SECOND.clear()
+                # else:
+                #     SECOND.append(get_correct_value(FIRST, threshold=0.1))
+                #     FIRST.clear()
+
+            else:
+                FIRST.append([x, y/10.0])
+            # print("坐标为{},{}".format(x, y/10.0))
+            return (CAR_X, CAR_Y)
+
+
+# def main():
 np.seterr(invalid='ignore')
 # pts = deque(maxlen=16)
 cap1 = cv2.VideoCapture(1)
@@ -59,101 +160,6 @@ cv2.createTrackbar("disp12MaxDiff", "config", 1, 255, lambda x: None)
 # cv2.createTrackbar("PreFilterCap", "config", 1, 62, lambda x: None)  # 注意调节的时候这个值必须是奇数
 # cv2.createTrackbar("MaxDiff", "config", 1, 400, lambda x: None)
 
-# 消除差异
-FIRST = []
-SECOND = []
-
-# 标记和相机坐标
-
-CAMERA_POS_OF_MAP = (75, 0)
-MARK_POS_OF_MAP = (150, 140)
-
-# num_dict.setdefault()
-
-
-def get_correct_value(values: list, threshold):
-    """
-    误差消除
-    :param values:
-    :return:
-    """
-    # 求众数
-    # global FIRST
-    slope = [(y / x) for x, y in values]
-    while len(values) > 0:
-        mean = np.mean(slope)
-        diff = [abs(s - mean) for s in slope]
-
-        idx = np.argmax(diff)
-        if diff[idx] > threshold:
-            slope.pop(idx)
-            values.pop(idx)
-        else:
-
-            # return (np.mean())
-            # print(values[0])
-            return values[0]
-
-
-def get_2point_distance(point1, point2, shape: int):
-    if shape == 1:
-        return abs(point1 - point2)
-    elif shape == 2:
-        return int(math.sqrt((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2))
-
-
-def get_coordinate(mark_pos_ofcamera: tuple, power_pos_ofcamera: tuple,
-                   camera_pos_ofmap: tuple, threeD, mark_pos_ofmap) -> tuple:
-    '''
-        一般位置的摆放如下，单位都是cm
-    ---------------------------------MARK
-    -                                   -
-    -                        CAR        -
-    -                       / |         -
-    -                      /  |         -
-    -                     /   |         -
-    -                    /    |         -
-    -                   /     |         -
-    ---------------CAMERA-----------------
-    :param mark_pos_ofmap: 标记物在真实地图上的位置
-    :param camera_pos_ofmap: 相机在真实地图上的位置
-    :param power_pos_ofcamera: 电池在相机上的位置
-    :param mark_pos_ofcamera: 标记物在相机上的位置
-    :param threeD:   使用MATLAB矫正和opencv得到的深度矩阵
-    '''
-    #  计算深度
-    car_deepth = threeD[power_pos_ofcamera[1]][power_pos_ofcamera[0]][-1]
-    mark_deepth = threeD[mark_pos_ofcamera[1]][mark_pos_ofcamera[0]][-1]
-    if car_center != 'inf' and mark_deepth != 'inf':
-        if car_deepth > 0 and mark_deepth > 0:
-            # car_deepth /= 10.0
-            mark_deepth /= 10.0 # 毫米转化为厘米
-            # if abs(mark_deepth - math.sqrt(mark_pos_ofmap[0]**2 + mark_pos_ofmap[1] ** 2)) > 50:
-            #     print("标记与相机测量误差太大")
-            # else:
-            # 计算小车与标记的横向距离,两点之间的距离在除以5，这个5是通过实际测量和图像点计算出来的
-            # x_length = math.sqrt((power_pos_ofcamera[0] - mark_pos_ofcamera[0]) ** 2
-            #                      + ((power_pos_ofcamera[1] - mark_pos_ofcamera[1]) ** 2)) / 5.0
-            x_length = get_2point_distance(point1=power_pos_ofcamera, point2=mark_pos_ofcamera, shape=2) / 5.0
-            # 在通过标记的坐标得到小车的横向坐标
-            x = mark_pos_ofmap[0] - x_length
-            # print("小车与标记的距离为{}, 横向坐标为{}".format(x_length, x))
-            # 再用勾股定理得到y
-            y = math.sqrt(car_deepth ** 2 - (x - camera_pos_ofmap[0]) ** 2)
-            # global FIRST
-            if len(FIRST) == 40:
-                if len(SECOND) == 10:
-                    correct_coordinate = get_correct_value(SECOND, threshold=0.1)
-                    print(correct_coordinate)
-                    SECOND.clear()
-                else:
-                    SECOND.append(get_correct_value(FIRST, threshold=0.1))
-                    FIRST.clear()
-
-            else:
-                FIRST.append([x, y/10.0])
-            # print("坐标为{},{}".format(x, y/10.0))
-            # return correct_coordinate
 
 
 while True:
@@ -249,7 +255,6 @@ while True:
     dsp = cv2.normalize(disparity, disparity, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)
     # threeD = cv2.
     threeD = cv2.reprojectImageTo3D(disparity.astype(np.float32) / 16., camera_configs.Q)
-    center = None
     car_center = None
     if len(cnts1) > 0:
         if len(cnts2) > 0:
@@ -289,8 +294,8 @@ while True:
             #         print(threeD)
             if car_center:
                 get_coordinate(red_center, car_center, camera_pos_ofmap=CAMERA_POS_OF_MAP, threeD=threeD,
-                               mark_pos_ofmap=MARK_POS_OF_MAP)
-
+                               mark_pos_ofmap=MARK_POS_OF_MAP, car_center=car_center)
+                # print(CAR_X, CAR_Y)
             # print("红色坐标为", threeD[red_center[1]][red_center[0]])
         else:
             print("红色丢失")
@@ -302,9 +307,9 @@ while True:
     # print(cv2.)
     # cv2
     # cv2.moveWindow('frame1', x=0, y=0)  # 原地
-    cv2.imshow('mask1', mask1)
-    cv2.imshow('mask2', mask2)
-    cv2.imshow('mask3', mask3)
+    # cv2.imshow('mask1', mask1)
+    # cv2.imshow('mask2', mask2)
+    # cv2.imshow('mask3', mask3)
     # cv2.moveWindow('mask', x=frame1.shape[1], y=0)  # 右边
     # cv2.imshow('res', res1)
     # cv2.moveWindow('res', y=frame1.shape[0], x=0)  # 下边
