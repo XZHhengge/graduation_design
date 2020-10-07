@@ -78,7 +78,7 @@ def get_correct_value(values: list, threshold):
     :return:
     """
     # 求众数
-    global FIRST
+    # global FIRST
     slope = [(y / x) for x, y in values]
     while len(values) > 0:
         mean = np.mean(slope)
@@ -91,7 +91,7 @@ def get_correct_value(values: list, threshold):
         else:
 
             # return (np.mean())
-            print(values[0])
+            # print(values[0])
             return values[0]
 
 
@@ -140,9 +140,9 @@ def get_coordinate(mark_pos_ofcamera: tuple, power_pos_ofcamera: tuple,
             # print("小车与标记的距离为{}, 横向坐标为{}".format(x_length, x))
             # 再用勾股定理得到y
             y = math.sqrt(car_deepth ** 2 - (x - camera_pos_ofmap[0]) ** 2)
-            global FIRST
+            # global FIRST
             if len(FIRST) == 40:
-                if SECOND == 10:
+                if len(SECOND) == 10:
                     correct_coordinate = get_correct_value(SECOND, threshold=0.1)
                     print(correct_coordinate)
                     SECOND.clear()
@@ -153,7 +153,7 @@ def get_coordinate(mark_pos_ofcamera: tuple, power_pos_ofcamera: tuple,
             else:
                 FIRST.append([x, y/10.0])
             # print("坐标为{},{}".format(x, y/10.0))
-            return correct_coordinate
+            # return correct_coordinate
 
 
 while True:
@@ -302,9 +302,9 @@ while True:
     # print(cv2.)
     # cv2
     # cv2.moveWindow('frame1', x=0, y=0)  # 原地
-    # cv2.imshow('mask1', mask1)
-    # cv2.imshow('mask2', mask2)
-    # cv2.imshow('mask3', mask3)
+    cv2.imshow('mask1', mask1)
+    cv2.imshow('mask2', mask2)
+    cv2.imshow('mask3', mask3)
     # cv2.moveWindow('mask', x=frame1.shape[1], y=0)  # 右边
     # cv2.imshow('res', res1)
     # cv2.moveWindow('res', y=frame1.shape[0], x=0)  # 下边

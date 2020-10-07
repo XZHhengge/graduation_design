@@ -6,8 +6,8 @@ car_y = 0
 car_speed_x = 5
 car_speed_y = 5
 
-MAP_WIDTH = 150*5  # 根据真实地图 5:1，真实地图单位cm
-MAP_HEIGHT = 140*5
+MAP_WIDTH = 750  # 根据真实地图 5:1，真实地图单位cm
+MAP_HEIGHT = 700
 # CAR_SIZE = (27*5, 15*5)
 # 导入
 import pygame
@@ -22,6 +22,8 @@ screen = pygame.display.set_mode([MAP_WIDTH, MAP_HEIGHT])  # 宽，高
 # 用白色填充屏幕
 screen.fill(THECOLORS['white'])
 
+background = pygame.image.load('paint1_resize.jpg')
+screen.blit(background, (0,0))
 # 加载小车的图片，更新图像
 pngFileName = 'car2.png'
 car = pygame.image.load(pngFileName)
