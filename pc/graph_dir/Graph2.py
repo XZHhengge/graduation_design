@@ -134,7 +134,7 @@ def create_directed_matrix(my_graph):
     return my_graph
 
 
-def create_directed_graph_from_edges(my_graph):  # 有向
+def create_directed_graph_from_edges():  # 有向
     nodes = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
     edge_list = [('A', 'F', 9), ('A', 'B', 10), ('A', 'G', 15), ('B', 'F', 2),
                  ('G', 'F', 3), ('G', 'E', 12), ('G', 'C', 10), ('C', 'E', 1),
@@ -173,7 +173,7 @@ def draw_directed_graph(my_graph):
     :param my_graph:
     :return:
     '''
-    G = nx.DiGraph()  # 建立一个空的you向图G
+    G = nx.DiGraph()  # 建立一个空的有向图G
     # G.
     for node in my_graph.vertices:
         G.add_node(str(node))
@@ -189,8 +189,24 @@ def draw_directed_graph(my_graph):
 
 
 if __name__ == '__main__':
-    g = Graph_Matrix()
-    created_graph = create_directed_graph_from_edges(g)
+    # g = Graph_Matrix()
+    # created_graph = create_directed_graph_from_edges()
+    G1 = nx.Graph()
+    G2 = nx.DiGraph()
+    nodes = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
+    edge_list = [('A', 'F', 9), ('A', 'B', 10), ('A', 'G', 15), ('B', 'F', 2),
+                 ('G', 'F', 3), ('G', 'E', 12), ('G', 'C', 10), ('C', 'E', 1),
+                 ('E', 'D', 7)]
 
-    draw_directed_graph(created_graph)
+    for node in nodes:
+        G1.add_node(node)
+        G2.add_node(node)
+    for edge in edge_list:
+        G1.add_weighted_edges_from([edge])
+        G2.add_weighted_edges_from([edge])
+    print(nx.dijkstra_path(G1, source='A', target='D'))
+    print(nx.dijkstra_path(G2, source='A', target='D'))
+    # my_graph = Graph_Matrix(nodes)
+    # my_graph.add_edges_from_list(edge_list)
+    # draw_directed_graph(my_graph)
     # draw_undircted_graph(created_graph)

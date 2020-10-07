@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 import socket
 import cv2
+import sys
 import numpy
 import threading
 from pc.process_image import process1
@@ -9,7 +10,9 @@ import pygame
 from pygame.locals import *
 
 conn = None
-
+MAP_WIDTH = 150*5  # 根据真实地图 5:1，真实地图单位cm
+MAP_HEIGHT = 140*5
+# CAR_
 
 def ReceiveVideo():
     # IP地址'0.0.0.0'为等待客户端连接
@@ -75,7 +78,7 @@ def ReceiveVideo():
 
 def send(conn):
     pygame.init()
-    pygame.display.set_mode((250, 250))
+    screen = pygame.display.set_mode((MAP_WIDTH, MAP_HEIGHT))
     while 1:
         for event in pygame.event.get():
             if event.type == KEYDOWN:
@@ -98,7 +101,10 @@ def send(conn):
                 elif key_input[pygame.K_UP]:
                     conn.send(b'w')
                     print("Forward")
-
+                # elif event.type == pygame.QUIT():
+                #     sys.exit()
+        screen.fill([255, 255, 255])
+        pygame.display.flip()
 
         # else:
         #     continue
