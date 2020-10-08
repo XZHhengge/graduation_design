@@ -2,9 +2,11 @@
 import math
 import cv2
 import numpy as np
+import threading
 from pc.camera_dir import camera_configs2 as camera_configs
+import globalVar
 
-CAR_X, CAR_Y = None, None
+CAR_X, CAR_Y = 0, 0
 
 # 消除差异
 FIRST = []
@@ -60,6 +62,7 @@ def get_coordinate(mark_pos_ofcamera: tuple, power_pos_ofcamera: tuple,
     -                    /    |         -
     -                   /     |         -
     ---------------CAMERA-----------------
+
     :param mark_pos_ofmap: 标记物在真实地图上的位置
     :param camera_pos_ofmap: 相机在真实地图上的位置
     :param power_pos_ofcamera: 电池在相机上的位置
@@ -86,9 +89,13 @@ def get_coordinate(mark_pos_ofcamera: tuple, power_pos_ofcamera: tuple,
             # 再用勾股定理得到y
             y = math.sqrt(car_deepth ** 2 - (x - camera_pos_ofmap[0]) ** 2)
             # global FIRST
-            global CAR_X, CAR_Y
+            # global CAR_X, CAR_Y
             if len(FIRST) == 40:
-                (CAR_X, CAR_Y) = tuple(get_correct_value(FIRST, threshold=0.1))
+                (globalVar.GloVar.CAR_X, globalVar.GloVar.CAR_Y) = tuple(get_correct_value(FIRST, threshold=0.1))
+                # print(globalVar.GloVar.CA)
+                # print(GloVar.CAR_X, GloVar.CAR_Y)
+                # GloVar.CAR_X = CAR_X
+                # GloVar.CAR_Y = CAR_Y
                 # print(CAR_X, CAR_Y)
                 FIRST.clear()
                 # if len(SECOND) == 10:
@@ -102,222 +109,240 @@ def get_coordinate(mark_pos_ofcamera: tuple, power_pos_ofcamera: tuple,
             else:
                 FIRST.append([x, y/10.0])
             # print("坐标为{},{}".format(x, y/10.0))
-            return (CAR_X, CAR_Y)
-
-
-# def main():
-np.seterr(invalid='ignore')
-# pts = deque(maxlen=16)
-cap1 = cv2.VideoCapture(1)
-cap2 = cv2.VideoCapture(2)
-cap1.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
-cap2.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))  # ret = cap.set(3, 640)  # X
-# ret = cap.set(4, 480)  # Y
-
-# 定蓝色的HSV阈值
-blue_lower = np.array([80, 175, 100])
-blue_upper = np.array([130, 255, 255])
-
-# 黄色
-yellow_lower = np.array([20, 132, 86])
-yellow_upper = np.array([31, 255, 255])
-
-# 黄和蓝色
-# lower = np.array([20, 132, 152])
-# upper = np.array([33, 255, 255])
-# 黑色
-# lower_black = np.array([0, 0, 0])
-# upper_black = np.array([180, 255, 30])
-
-# i = 0
-# 红色
-red_lower = np.array([156, 180, 0])
-red_upper = np.array([255, 255, 255])
-
-cv2.namedWindow("config", cv2.WINDOW_NORMAL)
-cv2.moveWindow("left", 600, 0)
-cv2.moveWindow("right", 0, 0)
-
-# SGBM设置调节的参数
-cv2.createTrackbar("num", "config", 5, 60, lambda x: None)
-cv2.createTrackbar("blockSize", "config", 10, 15, lambda x: None)
-cv2.createTrackbar("SpeckleWindowSize", "config", 0, 200, lambda x: None)
-cv2.createTrackbar("SpeckleRange", "config", 1, 2, lambda x: None)
-cv2.createTrackbar("UniquenessRatio", "config", 0, 15, lambda x: None)
-cv2.createTrackbar("MinDisparity", "config", 0, 255, lambda x: None)
-cv2.createTrackbar("PreFilterCap", "config", 1, 63, lambda x: None)  # 注意调节的时候这个值必须是奇数
-cv2.createTrackbar("disp12MaxDiff", "config", 1, 255, lambda x: None)
-
-# BM
-# cv2.createTrackbar("num", "config", 0, 60, lambda x: None)
-# cv2.createTrackbar("blockSize", "config", 94, 255, lambda x: None)
-# cv2.createTrackbar("SpeckleWindowSize", "config", 1, 10, lambda x: None)
-# cv2.createTrackbar("SpeckleRange", "config", 1, 255, lambda x: None)
-# cv2.createTrackbar("UniquenessRatio", "config", 1, 255, lambda x: None)
-# cv2.createTrackbar("TextureThreshold", "config", 1, 255, lambda x: None)
-# cv2.createTrackbar("UniquenessRatio", "config", 1, 255, lambda x: None)
-# cv2.createTrackbar("MinDisparity", "config", 0, 255, lambda x: None)
-# cv2.createTrackbar("PreFilterCap", "config", 1, 62, lambda x: None)  # 注意调节的时候这个值必须是奇数
-# cv2.createTrackbar("MaxDiff", "config", 1, 400, lambda x: None)
 
 
 
-while True:
-    # 获取每一帧
-    ret1, frame1 = cap1.read()
-    ret2, frame2 = cap2.read()
+def main():
+    np.seterr(invalid='ignore')
+    # pts = deque(maxlen=16)
+    cap1 = cv2.VideoCapture(1)
+    cap2 = cv2.VideoCapture(2)
+    cap1.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
+    cap2.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))  # ret = cap.set(3, 640)  # X
+    # ret = cap.set(4, 480)  # Y
 
-    # 根据更正map对图片进行重构
-    img1_rectified = cv2.remap(frame1, camera_configs.left_map1, camera_configs.left_map2, cv2.INTER_LINEAR)
-    img2_rectified = cv2.remap(frame2, camera_configs.right_map1, camera_configs.right_map2, cv2.INTER_LINEAR)
-    cv2.imshow("megre", np.hstack((img1_rectified, img2_rectified)))
-    # picmerge2(img1_rectified, img2_rectified)
-    # stitcher = cv2.createStitcher(False)
-    # (status, stitched) = stitcher.stitch([img1_rectified, img2_rectified])
+    # 定蓝色的HSV阈值
+    blue_lower = np.array([80, 175, 100])
+    blue_upper = np.array([130, 255, 255])
 
-    # print(status)
+    # 黄色
+    yellow_lower = np.array([20, 132, 86])
+    yellow_upper = np.array([31, 255, 255])
 
-    # if status == 0:
-    # cv2.imwrite(args["output"], stitched)
-    # stitched = picmerge(img1_rectified, img2_rectified)
-    # cv2.imshow("Stitched", stitched)
+    # 黄和蓝色
+    # lower = np.array([20, 132, 152])
+    # upper = np.array([33, 255, 255])
+    # 黑色
+    # lower_black = np.array([0, 0, 0])
+    # upper_black = np.array([180, 255, 30])
 
-    # cv2.imshow("merge", picmerge(img1_rectified, img2_rectified))
-    # 换到 HSV
-    hsv1 = cv2.cvtColor(img1_rectified, cv2.COLOR_BGR2HSV)
-    # hsv2 = cv2.cvtColor(img2_rectified, cv2.COLOR_BGR2HSV)
+    # i = 0
+    # 红色
+    red_lower = np.array([156, 180, 0])
+    red_upper = np.array([255, 255, 255])
 
-    imgL = cv2.cvtColor(img1_rectified, cv2.COLOR_BGR2GRAY)
-    imgR = cv2.cvtColor(img2_rectified, cv2.COLOR_BGR2GRAY)
-    # 根据阈值构建掩模
-    mask1 = cv2.inRange(hsv1, blue_lower, blue_upper)  # 蓝色
-    mask2 = cv2.inRange(hsv1, yellow_lower, yellow_upper)  # 黄色
-    mask3 = cv2.inRange(hsv1, red_lower, red_upper)  # 红色
+    cv2.namedWindow("config", cv2.WINDOW_NORMAL)
+    cv2.moveWindow("left", 600, 0)
+    cv2.moveWindow("right", 0, 0)
 
-    # inRange()：介于lower / upper之间的为白色，其余黑色
-    # mask = cv2.inRange(hsv, lower_black, upper_black)
-    # 对原图像和掩模位运算,只保留原图中的蓝色部分
-    # res1 = cv2.bitwise_and(img1_rectified, img1_rectified, mask=mask1)
-    # res2 = cv2.bitwise_and(frame2, frame2, mask=mask2)
+    # SGBM设置调节的参数
+    cv2.createTrackbar("num", "config", 5, 60, lambda x: None)
+    cv2.createTrackbar("blockSize", "config", 10, 15, lambda x: None)
+    cv2.createTrackbar("SpeckleWindowSize", "config", 0, 200, lambda x: None)
+    cv2.createTrackbar("SpeckleRange", "config", 1, 2, lambda x: None)
+    cv2.createTrackbar("UniquenessRatio", "config", 0, 15, lambda x: None)
+    cv2.createTrackbar("MinDisparity", "config", 0, 255, lambda x: None)
+    cv2.createTrackbar("PreFilterCap", "config", 1, 63, lambda x: None)  # 注意调节的时候这个值必须是奇数
+    cv2.createTrackbar("disp12MaxDiff", "config", 1, 255, lambda x: None)
 
-    # mask1 = cv2.erode(mask1, None, iterations=2)  # 腐蚀
-    # mask2 = cv2.erode(mask2, None, iterations=2)  # 腐蚀
-    # mask1 = cv2.dilate(mask1, None, iterations=2)  # 膨胀
-    # mask2 = cv2.dilate(mask2, None, iterations=2)  # 膨胀
-    # mask = cv2.findContours(mask.copy())
-    cnts1 = cv2.findContours(mask1.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[1]  # 寻找蓝色轮廓
-    cnts2 = cv2.findContours(mask2.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[1]  # 寻找黄色轮廓
-    cnts3 = cv2.findContours(mask3.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[1]  # 寻找红色轮廓
-
-    num = cv2.getTrackbarPos("num", "config")  # 即最大视差值与最小视差值之差, 窗口大小必须是16的整数倍，int 型
-    blockSize = cv2.getTrackbarPos("blockSize",
-                                   "config")  # 匹配的块大小。它必须是> = 1的奇数。通常情况下，它应该在3--11的范围内。这里设置为大于11也可以，但必须为奇数。
-    SpeckleWindowSize = cv2.getTrackbarPos("SpeckleWindowSize", "config")  # 19
-    SpeckleRange = cv2.getTrackbarPos("SpeckleRange", "config")
-    UniquenessRatio = cv2.getTrackbarPos("UniquenessRatio", "config")
-    MinDisparity = cv2.getTrackbarPos("MinDisparity", "config")  # 0
-    PreFilterCap = cv2.getTrackbarPos("PreFilterCap", "config")  #
-    Disp12MaxDiff = cv2.getTrackbarPos("disp12MaxDiff", "config")  #
-    if blockSize == 0:
-        blockSize += 1
-    if blockSize % 2 == 0:
-        blockSize += 1
-    if blockSize < 5:
-        blockSize = 3
-
-    # SGBM
-    # stereo = cv2.StereoSGBM_create(
-    #     minDisparity=0,
-    #     numDisparities=16 * num,
-    #     blockSize=blockSize,
-    #     P1=8 * 3 * blockSize ** 2,
-    #     P2=32 * 3 * blockSize ** 2,
-    #     # uniquenessRatio=5,
-    #     # mode=cv2.STEREO_SGBM_MODE_HH,
-    #     mode=cv2.STEREO_SGBM_MODE_HH4
-    #     # mode=cv2.STEREO_SGBM_MODE_SGBM,
-    #     # mode=cv2.STEREO_SGBM_MODE_SGBM_3WAY,
-    # )
     # BM
-    stereo = cv2.StereoBM_create(
-        numDisparities=16 * num,
-        blockSize=blockSize,
-    )
-    stereo.setPreFilterCap(PreFilterCap)
-    stereo.setMinDisparity(MinDisparity)
-    # stereo.setTextureThreshold(TextureThreshold)
-    stereo.setUniquenessRatio(UniquenessRatio)
-    stereo.setSpeckleWindowSize(SpeckleWindowSize)
-    stereo.setSpeckleRange(SpeckleRange)
-    stereo.setDisp12MaxDiff(Disp12MaxDiff)
+    # cv2.createTrackbar("num", "config", 0, 60, lambda x: None)
+    # cv2.createTrackbar("blockSize", "config", 94, 255, lambda x: None)
+    # cv2.createTrackbar("SpeckleWindowSize", "config", 1, 10, lambda x: None)
+    # cv2.createTrackbar("SpeckleRange", "config", 1, 255, lambda x: None)
+    # cv2.createTrackbar("UniquenessRatio", "config", 1, 255, lambda x: None)
+    # cv2.createTrackbar("TextureThreshold", "config", 1, 255, lambda x: None)
+    # cv2.createTrackbar("UniquenessRatio", "config", 1, 255, lambda x: None)
+    # cv2.createTrackbar("MinDisparity", "config", 0, 255, lambda x: None)
+    # cv2.createTrackbar("PreFilterCap", "config", 1, 62, lambda x: None)  # 注意调节的时候这个值必须是奇数
+    # cv2.createTrackbar("MaxDiff", "config", 1, 400, lambda x: None)
 
-    disparity = stereo.compute(imgL, imgR)
-    dsp = cv2.normalize(disparity, disparity, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)
-    # threeD = cv2.
-    threeD = cv2.reprojectImageTo3D(disparity.astype(np.float32) / 16., camera_configs.Q)
-    car_center = None
-    if len(cnts1) > 0:
-        if len(cnts2) > 0:
-            c1 = max(cnts1, key=cv2.contourArea)  # 最大蓝色
-            c2 = max(cnts2, key=cv2.contourArea)  # 最大黄色
-            # ((x1, y1), radius1) = cv2.minEnclosingCircle(c1)  # 外接圆
-            # ((x2, y2), radius2) = cv2.minEnclosingCircle(c2)
-            M1 = cv2.moments(c1)  # 计算轮廓的矩
-            M2 = cv2.moments(c2)
-            # cv2.imshow("fame11", img1_rectified)
-            # M1 = get_color_center(img1_rectified, blue_lower, blue_upper)
-            if M1["m00"]:
-                center1 = (int(M1["m10"] / M1["m00"]), int(M1["m01"] / M1["m00"]))  # 电池
-                if M2["m00"]:
-                    center2 = (int(M2["m10"] / M2["m00"]), int(M2["m01"] / M2["m00"]))  # 车轮
-                    length = get_2point_distance(center1, center2, 2)
-                    if length < 400:
-                        car_center = (int((center1[0] + center2[0]) / 2), int((center1[1] + center2[1]) / 2))  # 取两点之间的
+
+
+    while True:
+        # 获取每一帧
+        ret1, frame1 = cap1.read()
+        ret2, frame2 = cap2.read()
+
+        # 根据更正map对图片进行重构
+        img1_rectified = cv2.remap(frame1, camera_configs.left_map1, camera_configs.left_map2, cv2.INTER_LINEAR)
+        img2_rectified = cv2.remap(frame2, camera_configs.right_map1, camera_configs.right_map2, cv2.INTER_LINEAR)
+        cv2.imshow("megre", np.hstack((img1_rectified, img2_rectified)))
+        # picmerge2(img1_rectified, img2_rectified)
+        # stitcher = cv2.createStitcher(False)
+        # (status, stitched) = stitcher.stitch([img1_rectified, img2_rectified])
+
+        # print(status)
+
+        # if status == 0:
+        # cv2.imwrite(args["output"], stitched)
+        # stitched = picmerge(img1_rectified, img2_rectified)
+        # cv2.imshow("Stitched", stitched)
+
+        # cv2.imshow("merge", picmerge(img1_rectified, img2_rectified))
+        # 换到 HSV
+        hsv1 = cv2.cvtColor(img1_rectified, cv2.COLOR_BGR2HSV)
+        # hsv2 = cv2.cvtColor(img2_rectified, cv2.COLOR_BGR2HSV)
+
+        imgL = cv2.cvtColor(img1_rectified, cv2.COLOR_BGR2GRAY)
+        imgR = cv2.cvtColor(img2_rectified, cv2.COLOR_BGR2GRAY)
+        # 根据阈值构建掩模
+        mask1 = cv2.inRange(hsv1, blue_lower, blue_upper)  # 蓝色
+        mask2 = cv2.inRange(hsv1, yellow_lower, yellow_upper)  # 黄色
+        mask3 = cv2.inRange(hsv1, red_lower, red_upper)  # 红色
+
+        # inRange()：介于lower / upper之间的为白色，其余黑色
+        # mask = cv2.inRange(hsv, lower_black, upper_black)
+        # 对原图像和掩模位运算,只保留原图中的蓝色部分
+        # res1 = cv2.bitwise_and(img1_rectified, img1_rectified, mask=mask1)
+        # res2 = cv2.bitwise_and(frame2, frame2, mask=mask2)
+
+        # mask1 = cv2.erode(mask1, None, iterations=2)  # 腐蚀
+        # mask2 = cv2.erode(mask2, None, iterations=2)  # 腐蚀
+        # mask1 = cv2.dilate(mask1, None, iterations=2)  # 膨胀
+        # mask2 = cv2.dilate(mask2, None, iterations=2)  # 膨胀
+        # mask = cv2.findContours(mask.copy())
+        cnts1 = cv2.findContours(mask1.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[1]  # 寻找蓝色轮廓
+        cnts2 = cv2.findContours(mask2.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[1]  # 寻找黄色轮廓
+        cnts3 = cv2.findContours(mask3.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[1]  # 寻找红色轮廓
+
+        num = cv2.getTrackbarPos("num", "config")  # 即最大视差值与最小视差值之差, 窗口大小必须是16的整数倍，int 型
+        blockSize = cv2.getTrackbarPos("blockSize",
+                                       "config")  # 匹配的块大小。它必须是> = 1的奇数。通常情况下，它应该在3--11的范围内。这里设置为大于11也可以，但必须为奇数。
+        SpeckleWindowSize = cv2.getTrackbarPos("SpeckleWindowSize", "config")  # 19
+        SpeckleRange = cv2.getTrackbarPos("SpeckleRange", "config")
+        UniquenessRatio = cv2.getTrackbarPos("UniquenessRatio", "config")
+        MinDisparity = cv2.getTrackbarPos("MinDisparity", "config")  # 0
+        PreFilterCap = cv2.getTrackbarPos("PreFilterCap", "config")  #
+        Disp12MaxDiff = cv2.getTrackbarPos("disp12MaxDiff", "config")  #
+        if blockSize == 0:
+            blockSize += 1
+        if blockSize % 2 == 0:
+            blockSize += 1
+        if blockSize < 5:
+            blockSize = 3
+
+        # SGBM
+        # stereo = cv2.StereoSGBM_create(
+        #     minDisparity=0,
+        #     numDisparities=16 * num,
+        #     blockSize=blockSize,
+        #     P1=8 * 3 * blockSize ** 2,
+        #     P2=32 * 3 * blockSize ** 2,
+        #     # uniquenessRatio=5,
+        #     # mode=cv2.STEREO_SGBM_MODE_HH,
+        #     mode=cv2.STEREO_SGBM_MODE_HH4
+        #     # mode=cv2.STEREO_SGBM_MODE_SGBM,
+        #     # mode=cv2.STEREO_SGBM_MODE_SGBM_3WAY,
+        # )
+        # BM
+        stereo = cv2.StereoBM_create(
+            numDisparities=16 * num,
+            blockSize=blockSize,
+        )
+        stereo.setPreFilterCap(PreFilterCap)
+        stereo.setMinDisparity(MinDisparity)
+        # stereo.setTextureThreshold(TextureThreshold)
+        stereo.setUniquenessRatio(UniquenessRatio)
+        stereo.setSpeckleWindowSize(SpeckleWindowSize)
+        stereo.setSpeckleRange(SpeckleRange)
+        stereo.setDisp12MaxDiff(Disp12MaxDiff)
+
+        disparity = stereo.compute(imgL, imgR)
+        dsp = cv2.normalize(disparity, disparity, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)
+        # threeD = cv2.
+        threeD = cv2.reprojectImageTo3D(disparity.astype(np.float32) / 16., camera_configs.Q)
+        car_center = None
+        if len(cnts1) > 0:
+            if len(cnts2) > 0:
+                c1 = max(cnts1, key=cv2.contourArea)  # 最大蓝色
+                c2 = max(cnts2, key=cv2.contourArea)  # 最大黄色
+                # ((x1, y1), radius1) = cv2.minEnclosingCircle(c1)  # 外接圆
+                # ((x2, y2), radius2) = cv2.minEnclosingCircle(c2)
+                M1 = cv2.moments(c1)  # 计算轮廓的矩
+                M2 = cv2.moments(c2)
+                # cv2.imshow("fame11", img1_rectified)
+                # M1 = get_color_center(img1_rectified, blue_lower, blue_upper)
+                if M1["m00"]:
+                    center1 = (int(M1["m10"] / M1["m00"]), int(M1["m01"] / M1["m00"]))  # 电池
+                    if M2["m00"]:
+                        center2 = (int(M2["m10"] / M2["m00"]), int(M2["m01"] / M2["m00"]))  # 车轮
+                        length = get_2point_distance(center1, center2, 2)
+                        if length < 400:
+                            car_center = (int((center1[0] + center2[0]) / 2), int((center1[1] + center2[1]) / 2))  # 取两点之间的
+                        else:
+                            print("目标丢失")
+                            # print("距离", length)
+                        # print("中心", car_center)
                     else:
-                        print("目标丢失")
-                        # print("距离", length)
-                    # print("中心", car_center)
+                        print("没有黄色目标")
                 else:
-                    print("没有黄色目标")
+                    print("没有蓝色目标")
+
+
+        cv2.imshow('frame1', dsp)
+        if len(cnts3) > 0:
+            c3 = max(cnts3, key=cv2.contourArea)
+            M3 = cv2.moments(c3)
+            if M3["m00"]:
+                red_center = (int(M3["m10"] / M3["m00"]), int(M3["m01"] / M3["m00"]))
+                # if car_center:
+                #         print(threeD.shape)
+                #         print(threeD)
+                if car_center:
+                    get_coordinate(red_center, car_center, camera_pos_ofmap=CAMERA_POS_OF_MAP, threeD=threeD,
+                                   mark_pos_ofmap=MARK_POS_OF_MAP, car_center=car_center)
+                    # print(CAR_X, CAR_Y)
+                # print("红色坐标为", threeD[red_center[1]][red_center[0]])
             else:
-                print("没有蓝色目标")
+                print("红色丢失")
+        # if car_center:
+        #     if threeD[car_center[1]][car_center[0]][-1] > 0:
+        #         print("小车坐标", threeD[car_center[1]][car_center[0]])
+
+        # cv2.imshow('image', image)
+        # print(cv2.)
+        # cv2
+        # cv2.moveWindow('frame1', x=0, y=0)  # 原地
+        # cv2.imshow('mask1', mask1)
+        # cv2.imshow('mask2', mask2)
+        # cv2.imshow('mask3', mask3)
+        # cv2.moveWindow('mask', x=frame1.shape[1], y=0)  # 右边
+        # cv2.imshow('res', res1)
+        # cv2.moveWindow('res', y=frame1.shape[0], x=0)  # 下边
+
+        k = cv2.waitKey(1)  # & 0xFF
+        if k == ord('q'):
+            break
+    # 关闭窗口
+    cap1.release()
+    cap2.release()
+    cv2.destroyAllWindows()
 
 
-    cv2.imshow('frame1', dsp)
-    if len(cnts3) > 0:
-        c3 = max(cnts3, key=cv2.contourArea)
-        M3 = cv2.moments(c3)
-        if M3["m00"]:
-            red_center = (int(M3["m10"] / M3["m00"]), int(M3["m01"] / M3["m00"]))
-            # if car_center:
-            #         print(threeD.shape)
-            #         print(threeD)
-            if car_center:
-                get_coordinate(red_center, car_center, camera_pos_ofmap=CAMERA_POS_OF_MAP, threeD=threeD,
-                               mark_pos_ofmap=MARK_POS_OF_MAP, car_center=car_center)
-                # print(CAR_X, CAR_Y)
-            # print("红色坐标为", threeD[red_center[1]][red_center[0]])
-        else:
-            print("红色丢失")
-    # if car_center:
-    #     if threeD[car_center[1]][car_center[0]][-1] > 0:
-    #         print("小车坐标", threeD[car_center[1]][car_center[0]])
-
-    # cv2.imshow('image', image)
-    # print(cv2.)
-    # cv2
-    # cv2.moveWindow('frame1', x=0, y=0)  # 原地
-    # cv2.imshow('mask1', mask1)
-    # cv2.imshow('mask2', mask2)
-    # cv2.imshow('mask3', mask3)
-    # cv2.moveWindow('mask', x=frame1.shape[1], y=0)  # 右边
-    # cv2.imshow('res', res1)
-    # cv2.moveWindow('res', y=frame1.shape[0], x=0)  # 下边
-
-    k = cv2.waitKey(1)  # & 0xFF
-    if k == ord('q'):
-        break
-# 关闭窗口
-cap1.release()
-cap2.release()
-cv2.destroyAllWindows()
+if __name__ == '__main__':
+    main()
+#
+# def start():
+#     global CAR_X, CAR_Y
+#     t1 = threading.Thread(target=main)
+#     t1.start()
+#     while 1:
+#         # import time
+#         print(CAR_X, CAR_Y, 'xxx')
+#         # return (CAR_X, CAR_Y)
+#
+#     #     print(CAR_X, CAR_Y)
+#     # return (CAR_X, CAR_Y)
+#
+# start()

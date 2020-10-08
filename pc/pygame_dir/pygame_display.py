@@ -5,8 +5,7 @@
 # 导入
 import pygame
 from pygame.color import THECOLORS
-import threading
-
+import globalVar
 car_x = 0
 car_y = 0
 car_speed_x = 5
@@ -27,10 +26,10 @@ def creat():
     # 用白色填充屏幕
     screen.fill(THECOLORS['white'])
 
-    background = pygame.image.load('paint1_resize.jpg')
+    background = pygame.image.load('pc/pygame_dir/paint1_resize.jpg')
     screen.blit(background, (0, 0))
     # 加载小车的图片，更新图像
-    pngFileName = 'car2.png'
+    pngFileName = 'pc/pygame_dir/car2.png'
     car = pygame.image.load(pngFileName)
     screen.blit(car, [0, 0])
 
@@ -57,8 +56,8 @@ def creat():
         # car_y = car_y + car_speed_y
         # 左右边缘
         # if CAR_X and CAR_Y:
-        print(CAR_X, CAR_Y)
-        print('xxxxxxx')
+        print(globalVar.GloVar.CAR_X, globalVar.GloVar.CAR_Y, 'pygame')
+        # print(color_track.CAR_Y, color_track.CAR_Y)
         if carRect.left < 0 or carRect.right > MAP_WIDTH:
             speed[0] = -speed[0]
         # 上下边缘
@@ -72,10 +71,19 @@ def creat():
         pygame.display.flip()
     pygame.quit()
 
+# def play():
+#     while 1:
+#         print(CAR_X, CAR_Y)
+
 
 if __name__ == '__main__':
-
-    t = threading.Thread(target=creat)
-    t.start()
-    from pc.camera_dir.color_track import CAR_X, CAR_Y
-    # creat()
+    # t1 = threading.Thread(target=start)
+    # t1.start()
+    # print(CAR_X, CAR_Y)
+    # main()
+    creat()
+    # start()
+    # t = threading.Thread(target=creat)
+    # t.start()
+    # while 1:
+    #     print(CAR_X, CAR_Y)
