@@ -6,17 +6,13 @@
 import pygame
 from pygame.color import THECOLORS
 import globalVar
-
+from config import MAP_WIDTH, MAP_HEIGHT, CAR_SIZE
 car_x = 0
 car_y = 0
 car_speed_x = 5
 car_speed_y = 5
 
-MAP_WIDTH = 750  # 根据真实地图 5:1，真实地图单位cm
-MAP_HEIGHT = 700
 
-
-# CAR_SIZE = (27*5, 15*5)
 
 
 # 初始化
@@ -60,9 +56,9 @@ def creat():
         CAR_X, CAR_Y = globalVar.GloVar.CAR_X, globalVar.GloVar.CAR_Y
         if CAR_X and CAR_Y:
             # print(CAR_X, CAR_Y)
-            CAR_X *= 5
-            CAR_Y = -((CAR_Y*5) - MAP_HEIGHT)
-            update(CAR_X, CAR_Y)
+            CAR_X = 5 * CAR_X - CAR_SIZE[0] / 2  # 减除半个车距
+            CAR_Y = -((CAR_Y * 5) - MAP_HEIGHT + CAR_SIZE[1] / 2)
+            # update(CAR_X, CAR_Y)
             # print(int(CAR_X), int(CAR_Y), 'pygame')
         # print(color_track.CAR_Y, color_track.CAR_Y)
         if carRect.left < 0 or carRect.right > MAP_WIDTH:
@@ -74,12 +70,11 @@ def creat():
         #     car_speed_x = -car_speed_x
         # if car_y > 740 or car_y < 0:
         #     car_speed_y = -car_speed_y
+        pygame.time.delay(20)
+        pygame.draw.rect(screen, THECOLORS['white'], [CAR_X, CAR_Y, CAR_SIZE[0], CAR_SIZE[1]], 0)
         screen.blit(car, [CAR_X, CAR_Y])
         pygame.display.flip()
     pygame.quit()
-
-
-s = []
 
 
 def update(x, y):

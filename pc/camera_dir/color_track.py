@@ -2,25 +2,17 @@
 import math
 import cv2
 import numpy as np
-import threading
 from pc.camera_dir import camera_configs2 as camera_configs
 import globalVar
-
-CAR_X, CAR_Y = 0, 0
+from config import blue_upper, yellow_upper, red_lower, blue_lower, red_upper, yellow_lower, MARK_POS_OF_MAP, CAMERA_POS_OF_MAP
 
 # 消除差异
 FIRST = []
-SECOND = []
-
-# 标记和相机坐标
-
-CAMERA_POS_OF_MAP = (75, 0)
-MARK_POS_OF_MAP = (150, 140)
 
 
 def get_correct_value(values: list, threshold):
     """
-    误差消除
+    误差消除, 迭代计算斜率均值，排除掉与差值差异较大的数据
     :param values:
     :return:
     """
@@ -38,7 +30,6 @@ def get_correct_value(values: list, threshold):
         else:
 
             # return (np.mean())
-            # print(values[0])
             return values[0]
 
 
@@ -108,6 +99,7 @@ def get_coordinate(mark_pos_ofcamera: tuple, power_pos_ofcamera: tuple,
                 #     FIRST.clear()
 
             else:
+                print(x, y/10.0)
                 FIRST.append([x, y/10.0])
             # print("坐标为{},{}".format(x, y/10.0))
 
@@ -122,25 +114,7 @@ def main():
     cap2.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))  # ret = cap.set(3, 640)  # X
     # ret = cap.set(4, 480)  # Y
 
-    # 定蓝色的HSV阈值
-    blue_lower = np.array([80, 175, 100])
-    blue_upper = np.array([130, 255, 255])
 
-    # 黄色
-    yellow_lower = np.array([20, 132, 86])
-    yellow_upper = np.array([31, 255, 255])
-
-    # 黄和蓝色
-    # lower = np.array([20, 132, 152])
-    # upper = np.array([33, 255, 255])
-    # 黑色
-    # lower_black = np.array([0, 0, 0])
-    # upper_black = np.array([180, 255, 30])
-
-    # i = 0
-    # 红色
-    red_lower = np.array([156, 180, 0])
-    red_upper = np.array([255, 255, 255])
 
     cv2.namedWindow("config", cv2.WINDOW_NORMAL)
     cv2.moveWindow("left", 600, 0)
@@ -234,23 +208,23 @@ def main():
             blockSize = 3
 
         # SGBM
-        # stereo = cv2.StereoSGBM_create(
-        #     minDisparity=0,
-        #     numDisparities=16 * num,
-        #     blockSize=blockSize,
-        #     P1=8 * 3 * blockSize ** 2,
-        #     P2=32 * 3 * blockSize ** 2,
-        #     # uniquenessRatio=5,
-        #     # mode=cv2.STEREO_SGBM_MODE_HH,
-        #     mode=cv2.STEREO_SGBM_MODE_HH4
-        #     # mode=cv2.STEREO_SGBM_MODE_SGBM,
-        #     # mode=cv2.STEREO_SGBM_MODE_SGBM_3WAY,
-        # )
-        # BM
-        stereo = cv2.StereoBM_create(
+        stereo = cv2.StereoSGBM_create(
+            minDisparity=0,
             numDisparities=16 * num,
             blockSize=blockSize,
+            P1=8 * 3 * blockSize ** 2,
+            P2=32 * 3 * blockSize ** 2,
+            # uniquenessRatio=5,
+            # mode=cv2.STEREO_SGBM_MODE_HH,
+            mode=cv2.STEREO_SGBM_MODE_HH4
+            # mode=cv2.STEREO_SGBM_MODE_SGBM,
+            # mode=cv2.STEREO_SGBM_MODE_SGBM_3WAY,
         )
+        # BM
+        # stereo = cv2.StereoBM_create(
+        #     numDisparities=16 * num,
+        #     blockSize=blockSize,
+        # )
         stereo.setPreFilterCap(PreFilterCap)
         stereo.setMinDisparity(MinDisparity)
         # stereo.setTextureThreshold(TextureThreshold)
