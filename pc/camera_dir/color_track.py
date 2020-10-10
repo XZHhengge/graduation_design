@@ -90,8 +90,9 @@ def get_coordinate(mark_pos_ofcamera: tuple, power_pos_ofcamera: tuple,
             y = math.sqrt(car_deepth ** 2 - (x - camera_pos_ofmap[0]) ** 2)
             # global FIRST
             # global CAR_X, CAR_Y
-            if len(FIRST) == 40:
+            if len(FIRST) == 50:
                 (globalVar.GloVar.CAR_X, globalVar.GloVar.CAR_Y) = tuple(get_correct_value(FIRST, threshold=0.1))
+                # print('color_track', globalVar.GloVar.CAR_X, globalVar.GloVar.CAR_Y)
                 # print(globalVar.GloVar.CA)
                 # print(GloVar.CAR_X, GloVar.CAR_Y)
                 # GloVar.CAR_X = CAR_X
@@ -332,17 +333,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-#
-# def start():
-#     global CAR_X, CAR_Y
-#     t1 = threading.Thread(target=main)
-#     t1.start()
-#     while 1:
-#         # import time
-#         print(CAR_X, CAR_Y, 'xxx')
-#         # return (CAR_X, CAR_Y)
-#
-#     #     print(CAR_X, CAR_Y)
-#     # return (CAR_X, CAR_Y)
-#
-# start()

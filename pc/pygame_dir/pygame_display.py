@@ -6,6 +6,7 @@
 import pygame
 from pygame.color import THECOLORS
 import globalVar
+
 car_x = 0
 car_y = 0
 car_speed_x = 5
@@ -13,6 +14,8 @@ car_speed_y = 5
 
 MAP_WIDTH = 750  # 根据真实地图 5:1，真实地图单位cm
 MAP_HEIGHT = 700
+
+
 # CAR_SIZE = (27*5, 15*5)
 
 
@@ -26,12 +29,11 @@ def creat():
     # 用白色填充屏幕
     screen.fill(THECOLORS['white'])
 
-    background = pygame.image.load('pc/pygame_dir/paint1_resize.jpg')
+    background = pygame.image.load('/home/perfectman/PycharmProjects/graduation_design/pc/pygame_dir/paint1_resize.jpg')
     screen.blit(background, (0, 0))
-    # 加载小车的图片，更新图像
-    pngFileName = 'pc/pygame_dir/car2.png'
+    # 加载小车的图片，更新图像, 小车图片也是按照5：1
+    pngFileName = '/home/perfectman/PycharmProjects/graduation_design/pc/pygame_dir/car2.png'
     car = pygame.image.load(pngFileName)
-    screen.blit(car, [0, 0])
 
     # 获取小车的边边
     carRect = car.get_rect()
@@ -50,13 +52,18 @@ def creat():
         # pygame.time.delay(20)
         # # 覆盖痕迹
         # pygame.draw.rect(screen, THECOLORS['white'], [car_x, car_y, 100, 100], 0)
-        carRect = carRect.move(speed)
+        # carRect = carRect.move(speed)
         # 小鸟的位置
         # car_x = car_x + car_speed_x
         # car_y = car_y + car_speed_y
         # 左右边缘
-        # if CAR_X and CAR_Y:
-        print(globalVar.GloVar.CAR_X, globalVar.GloVar.CAR_Y, 'pygame')
+        CAR_X, CAR_Y = globalVar.GloVar.CAR_X, globalVar.GloVar.CAR_Y
+        if CAR_X and CAR_Y:
+            # print(CAR_X, CAR_Y)
+            CAR_X *= 5
+            CAR_Y = -((CAR_Y*5) - MAP_HEIGHT)
+            update(CAR_X, CAR_Y)
+            # print(int(CAR_X), int(CAR_Y), 'pygame')
         # print(color_track.CAR_Y, color_track.CAR_Y)
         if carRect.left < 0 or carRect.right > MAP_WIDTH:
             speed[0] = -speed[0]
@@ -67,20 +74,28 @@ def creat():
         #     car_speed_x = -car_speed_x
         # if car_y > 740 or car_y < 0:
         #     car_speed_y = -car_speed_y
-        screen.blit(car, carRect)
+        screen.blit(car, [CAR_X, CAR_Y])
         pygame.display.flip()
     pygame.quit()
 
-# def play():
-#     while 1:
-#         print(CAR_X, CAR_Y)
+
+s = []
+
+
+def update(x, y):
+    global s
+    if s:
+        if s[0] == (x, y):
+            pass
+        else:
+            print(x, y)
+            s[0] = (x, y)
+    else:
+        print(x, y)
+        s.append((x, y))
 
 
 if __name__ == '__main__':
-    # t1 = threading.Thread(target=start)
-    # t1.start()
-    # print(CAR_X, CAR_Y)
-    # main()
     creat()
     # start()
     # t = threading.Thread(target=creat)
