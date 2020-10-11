@@ -1,7 +1,6 @@
 # -*- coding:utf-8 -*-
 from typing import List
 import matplotlib.pyplot as plt
-from pc.process_image.process1 import process_img
 from itertools import combinations
 import numpy as np
 import cv2

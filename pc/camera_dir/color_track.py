@@ -99,7 +99,7 @@ def get_coordinate(mark_pos_ofcamera: tuple, power_pos_ofcamera: tuple,
                 #     FIRST.clear()
 
             else:
-                print(x, y/10.0)
+                # print(x, y/10.0)
                 FIRST.append([x, y/10.0])
             # print("坐标为{},{}".format(x, y/10.0))
 

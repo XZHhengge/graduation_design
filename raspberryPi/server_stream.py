@@ -2,6 +2,7 @@
 import socket
 import cv2
 import sys
+import time
 import numpy
 import threading
 from pc.process_image.process import process_img2
@@ -12,7 +13,8 @@ from pygame.locals import *
 conn = None
 MAP_WIDTH = 150*5  # 根据真实地图 5:1，真实地图单位cm
 MAP_HEIGHT = 140*5
-# CAR_
+
+
 
 def ReceiveVideo():
     # IP地址'0.0.0.0'为等待客户端连接
@@ -45,6 +47,7 @@ def ReceiveVideo():
     # 没有连接则等待有连接
     get_accept()
     t = threading.Thread(target=send, args=(conn,))
+
     t.start()
     try:
         while 1:
@@ -56,11 +59,11 @@ def ReceiveVideo():
                 # decimg = cv2.imdecode(data, cv2.IMREAD_COLOR)  # 将数组解码成图像
                 decimg = cv2.imdecode(data, cv2.IMREAD_GRAYSCALE)  # 将数组解码成图像
                 # print(decimg.shape)
-                cv2.startWindowThread()
-                cv2.imshow("decimg", decimg)
-                pro1 = process_img2(decimg)
-                # cv2.imshow("process2", process1.process_img2(decimg))
-                cv2.imshow('process1', pro1)  # 显示图像
+                # cv2.startWindowThread()
+                # cv2.imshow("decimg", decimg)
+                # pro1 = process_img2(decimg)
+                # # cv2.imshow("process2", process1.process_img2(decimg))
+                # cv2.imshow('process1', pro1)  # 显示图像
 
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
@@ -77,8 +80,22 @@ def ReceiveVideo():
 
 
 def send(conn):
-    print(globalVar.GloVar.CAR_X, 'server_X')
-    print(globalVar.GloVar.CAR_Y, 'server_Y')
+    # s = []
+    while 1:
+        x, y = globalVar.GloVar.CAR_X, globalVar.GloVar.CAR_Y
+        print((x, y))
+        conn.send(bytes(str(int(x)) + str(int(y)), encoding='utf-8'))
+        time.sleep(2)
+        # conn.send(bytes(globalVar.GloVar.CAR_Y))
+        # if not s:
+        #     print((globalVar.GloVar.CAR_X, globalVar.GloVar.CAR_Y))
+        #     s.append((globalVar.GloVar.CAR_X, globalVar.GloVar.CAR_Y))
+        # else:
+        #     if s[0] != (globalVar.GloVar.CAR_X, globalVar.GloVar.CAR_Y):
+        #         s[0] = (globalVar.GloVar.CAR_X, globalVar.GloVar.CAR_Y)
+        #         print(s[0])
+        #     else:
+        #         break
     # pygame.init()
     # screen = pygame.display.set_mode((MAP_WIDTH, MAP_HEIGHT))
     # while 1:
@@ -103,8 +120,8 @@ def send(conn):
     #             elif key_input[pygame.K_UP]:
     #                 conn.send(b'w')
     #                 print("Forward")
-    #             # elif event.type == pygame.QUIT():
-    #             #     sys.exit()
+    #             elif event.type == pygame.QUIT():
+    #                 sys.exit()
     #     screen.fill([255, 255, 255])
     #     pygame.display.flip()
 
