@@ -2,17 +2,16 @@
 # Author: cmzz
 # @Time :2020/10/7
 
-# 导入
+import cv2
 import pygame
 from pygame.color import THECOLORS
 import globalVar
-from config import MAP_WIDTH, MAP_HEIGHT, CAR_SIZE
+from config import MAP_WIDTH, MAP_HEIGHT, CAR_SIZE, PYGAME_BACKGROUND_FILE_PATH
+
 car_x = 0
 car_y = 0
 car_speed_x = 5
 car_speed_y = 5
-
-
 
 
 # 初始化
@@ -25,10 +24,11 @@ def creat():
     # 用白色填充屏幕
     screen.fill(THECOLORS['white'])
 
-    background = pygame.image.load('/home/perfectman/PycharmProjects/graduation_design/pc/pygame_dir/paint1_resize.jpg')
+    background = pygame.image.load(PYGAME_BACKGROUND_FILE_PATH[0:-4] + '_resize' + '.jpg')
     screen.blit(background, (0, 0))
     # 加载小车的图片，更新图像, 小车图片也是按照5：1
-    pngFileName = '/home/perfectman/PycharmProjects/graduation_design/pc/pygame_dir/car2.png'
+    # pngFileName = '/home/perfectman/PycharmProjects/graduation_design/pc/pygame_dir/car2.png'
+    pngFileName = './car2.png'
     car = pygame.image.load(pngFileName)
 
     # 获取小车的边边
@@ -70,24 +70,11 @@ def creat():
         #     car_speed_x = -car_speed_x
         # if car_y > 740 or car_y < 0:
         #     car_speed_y = -car_speed_y
-        pygame.time.delay(20)
+        # pygame.time.delay(20)
         pygame.draw.rect(screen, THECOLORS['white'], [CAR_X, CAR_Y, CAR_SIZE[0], CAR_SIZE[1]], 0)
         screen.blit(car, [CAR_X, CAR_Y])
         pygame.display.flip()
     pygame.quit()
-
-
-def update(x, y):
-    global s
-    if s:
-        if s[0] == (x, y):
-            pass
-        else:
-            print(x, y)
-            s[0] = (x, y)
-    else:
-        print(x, y)
-        s.append((x, y))
 
 
 if __name__ == '__main__':
