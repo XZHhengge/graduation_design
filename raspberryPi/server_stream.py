@@ -4,8 +4,8 @@ import cv2
 import sys
 import numpy
 import threading
-from pc.process_image import process1
-from pc.test import process_img2
+from pc.process_image.process import process_img2
+import globalVar
 import pygame
 from pygame.locals import *
 
@@ -77,34 +77,36 @@ def ReceiveVideo():
 
 
 def send(conn):
-    pygame.init()
-    screen = pygame.display.set_mode((MAP_WIDTH, MAP_HEIGHT))
-    while 1:
-        for event in pygame.event.get():
-            if event.type == KEYDOWN:
-                key_input = pygame.key.get_pressed()
-                if key_input[pygame.K_RETURN]:
-                    conn.send(b't')
-                    print("turn around")
-                elif key_input[pygame.K_LEFT]:
-                    print("turn Left")
-                    conn.send(b'a')
-                elif key_input[pygame.K_SPACE]:
-                    conn.send(b's')
-                    print("stop")
-                elif key_input[pygame.K_RIGHT]:
-                    conn.send(b'd')
-                    print("turn right")
-                elif key_input[pygame.K_DOWN]:
-                    conn.send(b'ss')
-                    print("backward")
-                elif key_input[pygame.K_UP]:
-                    conn.send(b'w')
-                    print("Forward")
-                # elif event.type == pygame.QUIT():
-                #     sys.exit()
-        screen.fill([255, 255, 255])
-        pygame.display.flip()
+    print(globalVar.GloVar.CAR_X, 'server_X')
+    print(globalVar.GloVar.CAR_Y, 'server_Y')
+    # pygame.init()
+    # screen = pygame.display.set_mode((MAP_WIDTH, MAP_HEIGHT))
+    # while 1:
+    #     for event in pygame.event.get():
+    #         if event.type == KEYDOWN:
+    #             key_input = pygame.key.get_pressed()
+    #             if key_input[pygame.K_RETURN]:
+    #                 conn.send(b't')
+    #                 print("turn around")
+    #             elif key_input[pygame.K_LEFT]:
+    #                 print("turn Left")
+    #                 conn.send(b'a')
+    #             elif key_input[pygame.K_SPACE]:
+    #                 conn.send(b's')
+    #                 print("stop")
+    #             elif key_input[pygame.K_RIGHT]:
+    #                 conn.send(b'd')
+    #                 print("turn right")
+    #             elif key_input[pygame.K_DOWN]:
+    #                 conn.send(b'ss')
+    #                 print("backward")
+    #             elif key_input[pygame.K_UP]:
+    #                 conn.send(b'w')
+    #                 print("Forward")
+    #             # elif event.type == pygame.QUIT():
+    #             #     sys.exit()
+    #     screen.fill([255, 255, 255])
+    #     pygame.display.flip()
 
         # else:
         #     continue
