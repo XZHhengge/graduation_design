@@ -6,14 +6,11 @@ import time
 import numpy
 import threading
 from pc.process_image.process import process_img2
-import globalVar
 import pygame
 from pygame.locals import *
+from config import CarVar, MAP_WIDTH, MAP_HEIGHT
 
 conn = None
-MAP_WIDTH = 150*5  # 根据真实地图 5:1，真实地图单位cm
-MAP_HEIGHT = 140*5
-
 
 
 def ReceiveVideo():
@@ -82,7 +79,7 @@ def ReceiveVideo():
 def send(conn):
     # s = []
     while 1:
-        x, y = globalVar.GloVar.CAR_X, globalVar.GloVar.CAR_Y
+        x, y = CarVar.CAR_X, CarVar.CAR_Y
         print((x, y))
         conn.send(bytes(str(int(x)) + str(int(y)), encoding='utf-8'))
         time.sleep(2)
