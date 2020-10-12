@@ -36,13 +36,11 @@ def ReceiveVideo():
             count -= len(newbuf)
         return buf
 
-    def get_accept():
-        global conn
-        conn, addr = s.accept()
-        print('connect from:' + str(addr))
+    conn, addr = s.accept()
+    print('connect from:' + str(addr))
     # 接受TCP连接并返回（conn,address）,其中conn是新的套接字对象，可以用来接收和发送数据。addr是连接客户端的地址。
     # 没有连接则等待有连接
-    get_accept()
+    # get_accept()
     t = threading.Thread(target=send, args=(conn,))
 
     t.start()
@@ -53,23 +51,24 @@ def ReceiveVideo():
             if length:
                 stringData = recvall(conn, int(length))  # 根据获得的文件长度，获取图片文件
                 data = numpy.frombuffer(stringData, numpy.uint8)  # 将获取到的字符流数据转换成1维数组
+                print(data)
                 # decimg = cv2.imdecode(data, cv2.IMREAD_COLOR)  # 将数组解码成图像
-                decimg = cv2.imdecode(data, cv2.IMREAD_GRAYSCALE)  # 将数组解码成图像
-                # print(decimg.shape)
+                # decimg = cv2.imdecode(data, cv2.IMREAD_GRAYSCALE)  # 将数组解码成图像
                 # cv2.startWindowThread()
                 # cv2.imshow("decimg", decimg)
                 # pro1 = process_img2(decimg)
                 # # cv2.imshow("process2", process1.process_img2(decimg))
                 # cv2.imshow('process1', pro1)  # 显示图像
 
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    break
-            else:
-                cv2.destroyAllWindows()
-                while 1:
-                    get_accept()
-                    if conn:
-                        break
+            #     if cv2.waitKey(1) & 0xFF == ord('q'):
+            #         break
+            # else:
+            #     cv2.destroyAllWindows()
+            #     while 1:
+            #         print('xxx')
+            #         # get_accept()
+            #         if conn:
+            #             break
 
     finally:
         s.close()
@@ -82,7 +81,7 @@ def send(conn):
         x, y = CarVar.CAR_X, CarVar.CAR_Y
         print((x, y))
         conn.send(bytes(str(int(x)) + str(int(y)), encoding='utf-8'))
-        time.sleep(2)
+        time.sleep(5)
         # conn.send(bytes(globalVar.GloVar.CAR_Y))
         # if not s:
         #     print((globalVar.GloVar.CAR_X, globalVar.GloVar.CAR_Y))

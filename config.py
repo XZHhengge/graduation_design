@@ -14,7 +14,7 @@ CAR_SIZE = (27 * 5, 15 * 5)
 # 在线画画 http://www.pixvi.net/piline/drawer.php
 '''配置pygame背景图'''
 PYGAME_BACKGROUND_FILE_PATH = './paint1.jpg'
-if not os.path.exists(PYGAME_BACKGROUND_FILE_PATH[0:-4] + '_resize' + '.jpg'):
+if not os.path.exists(PYGAME_BACKGROUND_FILE_PATH[0:-4] + '_resize' + '.jpg') and os.path.exists(PYGAME_BACKGROUND_FILE_PATH):
     import cv2
 
     im1 = cv2.imread(PYGAME_BACKGROUND_FILE_PATH)
@@ -79,5 +79,14 @@ red_upper = np.array([255, 255, 255])
 # 小车坐标
 
 class CarVar:
-    CAR_X = 0
-    CAR_Y = 0
+    CAR_X, CAR_Y = 0, 0
+    # def __init__(self):
+    #     self.CAR_X = 0
+    #     self.CAR_Y = 0
+    # # @property
+    # def set_value(self, x, y):
+    #     self.CAR_X = x
+    #     self.CAR_Y = y
+    #
+    # def get_value(self):
+

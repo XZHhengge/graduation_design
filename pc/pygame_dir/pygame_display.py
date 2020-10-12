@@ -55,7 +55,7 @@ def creat():
         CAR_X, CAR_Y = CarVar.CAR_X, CarVar.CAR_Y
         # CAR_X, CAR_Y = globalVar.GloVar.CAR_X, globalVar.GloVar.CAR_Y
         if CAR_X and CAR_Y:
-            print(CAR_X, CAR_Y, 'pygame_display')
+            # print(CAR_X, CAR_Y, 'pygame_display')
             CAR_X = 5 * CAR_X - CAR_SIZE[0] / 2  # 减除半个车距
             CAR_Y = -((CAR_Y * 5) - MAP_HEIGHT + CAR_SIZE[1] / 2)
             # update(CAR_X, CAR_Y)
