@@ -3,7 +3,6 @@ import math
 import cv2
 import numpy as np
 from pc.camera_dir import camera_configs2 as camera_configs
-import globalVar
 from config import blue_upper, yellow_upper, red_lower, blue_lower, red_upper, yellow_lower, MARK_POS_OF_MAP, CAMERA_POS_OF_MAP, CarVar
 
 # 消除差异
