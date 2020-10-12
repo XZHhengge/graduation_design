@@ -4,9 +4,9 @@
 
 import pygame
 from pygame.color import THECOLORS
-import globalVar
-from config import MAP_WIDTH, MAP_HEIGHT, CAR_SIZE, PYGAME_BACKGROUND_FILE_PATH
-
+# import globalVar
+from config import MAP_WIDTH, MAP_HEIGHT, CAR_SIZE, PYGAME_BACKGROUND_FILE_PATH, CarVar
+# from pc.camera_dir.color_track import CAR_X, CAR_Y
 car_x = 0
 car_y = 0
 car_speed_x = 5
@@ -52,9 +52,10 @@ def creat():
         # car_x = car_x + car_speed_x
         # car_y = car_y + car_speed_y
         # 左右边缘
-        CAR_X, CAR_Y = globalVar.GloVar.CAR_X, globalVar.GloVar.CAR_Y
+        CAR_X, CAR_Y = CarVar.CAR_X, CarVar.CAR_Y
+        # CAR_X, CAR_Y = globalVar.GloVar.CAR_X, globalVar.GloVar.CAR_Y
         if CAR_X and CAR_Y:
-            # print(CAR_X, CAR_Y, 'pygame_display')
+            print(CAR_X, CAR_Y, 'pygame_display')
             CAR_X = 5 * CAR_X - CAR_SIZE[0] / 2  # 减除半个车距
             CAR_Y = -((CAR_Y * 5) - MAP_HEIGHT + CAR_SIZE[1] / 2)
             # update(CAR_X, CAR_Y)
@@ -77,7 +78,8 @@ def creat():
 
 
 if __name__ == '__main__':
-    creat()
+    pass
+    # creat(CAR_X, CAR_Y)
     # start()
     # t = threading.Thread(target=creat)
     # t.start()

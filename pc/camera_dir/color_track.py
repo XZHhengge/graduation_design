@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 from pc.camera_dir import camera_configs2 as camera_configs
 import globalVar
-from config import blue_upper, yellow_upper, red_lower, blue_lower, red_upper, yellow_lower, MARK_POS_OF_MAP, CAMERA_POS_OF_MAP
+from config import blue_upper, yellow_upper, red_lower, blue_lower, red_upper, yellow_lower, MARK_POS_OF_MAP, CAMERA_POS_OF_MAP, CarVar
 
 # 消除差异
 FIRST = []
@@ -82,7 +82,7 @@ def get_coordinate(mark_pos_ofcamera: tuple, power_pos_ofcamera: tuple,
             # global FIRST
             # global CAR_X, CAR_Y
             if len(FIRST) == 50:
-                (globalVar.GloVar.CAR_X, globalVar.GloVar.CAR_Y) = tuple(get_correct_value(FIRST, threshold=0.1))
+                (CarVar.CAR_X, CarVar.CAR_Y) = tuple(get_correct_value(FIRST, threshold=0.1))
                 # print('color_track', globalVar.GloVar.CAR_X, globalVar.GloVar.CAR_Y)
                 # print(globalVar.GloVar.CA)
                 # print(GloVar.CAR_X, GloVar.CAR_Y)

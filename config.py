@@ -11,7 +11,6 @@ MAP_HEIGHT = 140 * 5  # 相机在这一边
 
 CAR_SIZE = (27 * 5, 15 * 5)
 
-
 # 在线画画 http://www.pixvi.net/piline/drawer.php
 '''配置pygame背景图'''
 PYGAME_BACKGROUND_FILE_PATH = './paint1.jpg'
@@ -23,7 +22,6 @@ if not os.path.exists(PYGAME_BACKGROUND_FILE_PATH[0:-4] + '_resize' + '.jpg'):
     left = PYGAME_BACKGROUND_FILE_PATH.rfind('/') + 1
     right = PYGAME_BACKGROUND_FILE_PATH.rfind('.')
     cv2.imwrite(PYGAME_BACKGROUND_FILE_PATH[left:right] + '_resize.jpg', im2)
-
 
 # 下面记录地图上的标记坐标(基于pygame的背景图）
 '''
@@ -76,3 +74,10 @@ yellow_upper = np.array([31, 255, 255])
 # 红色
 red_lower = np.array([156, 180, 0])
 red_upper = np.array([255, 255, 255])
+
+
+# 小车坐标
+
+class CarVar:
+    CAR_X = 0
+    CAR_Y = 0
