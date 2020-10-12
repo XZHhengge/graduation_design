@@ -51,7 +51,7 @@ def ReceiveVideo():
             if length:
                 stringData = recvall(conn, int(length))  # 根据获得的文件长度，获取图片文件
                 data = numpy.frombuffer(stringData, numpy.uint8)  # 将获取到的字符流数据转换成1维数组
-                print(data)
+                # print(data)
                 # decimg = cv2.imdecode(data, cv2.IMREAD_COLOR)  # 将数组解码成图像
                 # decimg = cv2.imdecode(data, cv2.IMREAD_GRAYSCALE)  # 将数组解码成图像
                 # cv2.startWindowThread()
@@ -77,11 +77,16 @@ def ReceiveVideo():
 
 def send(conn):
     # s = []
+    conn.send(bytes(str((MAP_WIDTH, MAP_HEIGHT)), encoding='utf-8'))
+    time.sleep(2)
+    x, y = CarVar.CAR_X, CarVar.CAR_Y
     while 1:
-        x, y = CarVar.CAR_X, CarVar.CAR_Y
-        print((x, y))
-        conn.send(bytes(str(int(x)) + str(int(y)), encoding='utf-8'))
-        time.sleep(5)
+        if CarVar.CAR_X and CarVar.CAR_Y:
+            if (x, y) != (CarVar.CAR_X, CarVar.CAR_Y):
+                (x, y) = (CarVar.CAR_X, CarVar.CAR_Y)
+                conn.send(bytes(str((int(CarVar.CAR_X), int(CarVar.CAR_Y))), encoding='utf-8'))
+        # tuple, length = len(str((17, 18)))
+        time.sleep(0.1)
         # conn.send(bytes(globalVar.GloVar.CAR_Y))
         # if not s:
         #     print((globalVar.GloVar.CAR_X, globalVar.GloVar.CAR_Y))

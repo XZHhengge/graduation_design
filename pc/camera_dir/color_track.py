@@ -81,7 +81,7 @@ def get_coordinate(mark_pos_ofcamera: tuple, power_pos_ofcamera: tuple,
             # global FIRST
             # global CAR_X, CAR_Y
             if len(FIRST) == 50:
-                (CarVar.CAR_X, CarVar.CAR_Y) = tuple(get_correct_value(FIRST, threshold=0.1))
+                CarVar.CAR_X, CarVar.CAR_Y = get_correct_value(FIRST, threshold=0.1)
                 # print('color_track', globalVar.GloVar.CAR_X, globalVar.GloVar.CAR_Y)
                 # print(globalVar.GloVar.CA)
                 # print(GloVar.CAR_X, GloVar.CAR_Y)
