@@ -42,9 +42,9 @@ POSITION_D = (0, MAP_HEIGHT * 3 / 5)
 POSITION_E = (0, 0)
 POSITION_F = (MAP_WIDTH, 0)
 
-NODE_LIST = [
-    POSITION_A, POSITION_B, POSITION_C, POSITION_D, POSITION_E, POSITION_F,
-]
+NODE_DICT = {
+    'A': POSITION_A, 'B': POSITION_B, 'C': POSITION_C, 'D': POSITION_D, 'E': POSITION_E, 'F': POSITION_F,
+}
 # 有边的节点，有向图 [(POSITION_A, POSITION_B)] 代表 A -> B
 EDGE_LIST = [
     (POSITION_A, POSITION_B), (POSITION_B, POSITION_C), (POSITION_C, POSITION_D), (POSITION_D, POSITION_E),
@@ -80,13 +80,7 @@ red_upper = np.array([255, 255, 255])
 
 class CarVar:
     CAR_X, CAR_Y = 0, 0
-    # def __init__(self):
-    #     self.CAR_X = 0
-    #     self.CAR_Y = 0
-    # # @property
-    # def set_value(self, x, y):
-    #     self.CAR_X = x
-    #     self.CAR_Y = y
-    #
-    # def get_value(self):
 
+
+class Map:
+    SOURCE, TARGET = 0, 0

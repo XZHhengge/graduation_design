@@ -8,7 +8,7 @@ import threading
 from pc.process_image.process import process_img2
 import pygame
 from pygame.locals import *
-from config import CarVar, MAP_WIDTH, MAP_HEIGHT, NODE_LIST
+from config import CarVar, MAP_WIDTH, MAP_HEIGHT, NODE_DICT
 
 conn = None
 
@@ -77,8 +77,10 @@ def ReceiveVideo():
 
 def send(conn):
     # s = []
-    NODE_LIST.append((MAP_WIDTH, MAP_HEIGHT))
-    conn.send(bytes(str(NODE_LIST).ljust(300), encoding='utf-8'))
+    node_list = []
+    node_list.append(NODE_DICT)
+    node_list.append((MAP_WIDTH, MAP_HEIGHT))
+    conn.send(bytes(str(node_list).ljust(300), encoding='utf-8'))
     time.sleep(2)
     x, y = CarVar.CAR_X, CarVar.CAR_Y
     while 1:
