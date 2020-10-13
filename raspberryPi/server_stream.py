@@ -8,9 +8,7 @@ import threading
 from pc.process_image.process import process_img2
 import pygame
 from pygame.locals import *
-from config import CarVar, MAP_WIDTH, MAP_HEIGHT, NODE_DICT
-
-conn = None
+from config import CarVar, MAP_WIDTH, MAP_HEIGHT, NODE_DICT, Tcp
 
 
 def ReceiveVideo():
@@ -37,6 +35,7 @@ def ReceiveVideo():
         return buf
 
     conn, addr = s.accept()
+    Tcp.CONN = conn
     print('connect from:' + str(addr))
     # 接受TCP连接并返回（conn,address）,其中conn是新的套接字对象，可以用来接收和发送数据。addr是连接客户端的地址。
     # 没有连接则等待有连接

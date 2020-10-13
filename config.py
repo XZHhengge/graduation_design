@@ -88,4 +88,5 @@ class Map:
 
 
 # tcp连接
-conn = None
+class Tcp:
+    CONN = None
