@@ -14,7 +14,8 @@ CAR_SIZE = (27 * 5, 15 * 5)
 # 在线画画 http://www.pixvi.net/piline/drawer.php
 '''配置pygame背景图'''
 PYGAME_BACKGROUND_FILE_PATH = './paint1.jpg'
-if not os.path.exists(PYGAME_BACKGROUND_FILE_PATH[0:-4] + '_resize' + '.jpg') and os.path.exists(PYGAME_BACKGROUND_FILE_PATH):
+if not os.path.exists(PYGAME_BACKGROUND_FILE_PATH[0:-4] + '_resize' + '.jpg') and os.path.exists(
+        PYGAME_BACKGROUND_FILE_PATH):
     import cv2
 
     im1 = cv2.imread(PYGAME_BACKGROUND_FILE_PATH)
@@ -84,3 +85,7 @@ class CarVar:
 
 class Map:
     SOURCE, TARGET = 0, 0
+
+
+# tcp连接
+conn = None

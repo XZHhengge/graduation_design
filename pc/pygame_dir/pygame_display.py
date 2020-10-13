@@ -4,17 +4,8 @@
 
 import pygame
 from pygame.color import THECOLORS
-# import globalVar
 from config import MAP_WIDTH, MAP_HEIGHT, CAR_SIZE, PYGAME_BACKGROUND_FILE_PATH, CarVar
-# from pc.camera_dir.color_track import CAR_X, CAR_Y
-car_x = 0
-car_y = 0
-car_speed_x = 5
-car_speed_y = 5
 
-COLOR_INACTIVE = pygame.Color('lightskyblue3')
-COLOR_ACTIVE = pygame.Color('dodgerblue2')
-# FONT = pygame.font.Font(None, 32)
 
 # 初始化
 def creat():
@@ -24,17 +15,24 @@ def creat():
     screen = pygame.display.set_mode([MAP_WIDTH, MAP_HEIGHT+100])  # 宽，高
     # 用白色填充屏幕
     font = pygame.font.Font(None, 32)
-    color_inactive = pygame.Color('lightskyblue3')
-    color_active = pygame.Color('dodgerblue2')
-    color = color_inactive
+
+    color_inactive1, color_inactive2 = pygame.Color('lightskyblue3'), pygame.Color('lightskyblue3')
+    color_active1, color_active2 = pygame.Color('dodgerblue2'), pygame.Color('dodgerblue2')
+    color1 = color_inactive1
+    color2 = color_inactive2
+    button_color_inactive = (255, 0, 0)
+    button_color_active = (0, 255, 0)
+    button_color = button_color_inactive
     active = False
+    active2 = False
+    active3 = False
     text = ''
     text2 = ''
     done = False
     # 文本输入框
-    input_box1 = pygame.Rect(50, MAP_HEIGHT+50, 32, 32)
-    input_box2 = pygame.Rect(250, MAP_HEIGHT+50, 32, 32)
-
+    input_box1 = pygame.Rect(MAP_WIDTH/7, MAP_HEIGHT+50, 32, 32)
+    input_box2 = pygame.Rect(MAP_WIDTH*3/7, MAP_HEIGHT+50, 32, 32)
+    button = pygame.Rect(MAP_WIDTH*5/7, MAP_HEIGHT+50, 44, 30)
     # 加载小车的图片，更新图像, 小车图片也是按照5：1
     # pngFileName = '/home/perfectman/PycharmProjects/graduation_design/pc/pygame_dir/car2.png'
     pngFileName = './car2.png'
@@ -56,11 +54,23 @@ def creat():
                 # If the user clicked on the input_box rect.
                 if input_box1.collidepoint(event.pos[0], event.pos[1]):
                     # Toggle the active variable.
+                    # active = not active
                     active = not active
+                    active2 = not active2 if active2 else active2
+                elif input_box2.collidepoint(event.pos[0], event.pos[1]):
+                    active2 = not active2
+                    active = not active if active else active
+                elif button.collidepoint(event.pos[0], event.pos[1]):
+                    active3 = not active3
+                    button_color = button_color_active
+                    print(text, text2)
+                    print('click the go')
                 else:
-                    active = False
+                    active, active2, active3 = False, False, False
                 # Change the current color of the input box.
-                color = color_active if active else color_inactive
+                color1 = color_active1 if active else color_inactive1
+                color2 = color_active2 if active2 else color_inactive2
+                button_color = button_color_active if active3 else button_color_inactive
             if event.type == pygame.KEYDOWN:
                 if active:
                     if event.key == pygame.K_RETURN:
@@ -70,6 +80,12 @@ def creat():
                         text = text[:-1]
                     else:
                         text += event.unicode
+                elif active2:
+                    if event.key == pygame.K_BACKSPACE:
+                        text2 = text2[:-1]
+                    else:
+                        text2 += event.unicode
+
         # 时间延迟
         # pygame.time.delay(20)
         # # 覆盖痕迹
@@ -95,25 +111,33 @@ def creat():
         # if car_y > 740 or car_y < 0:
         #     car_speed_y = -car_speed_y
         # pygame.time.delay(20)
-        txt_surface = font.render(text, True, color)
-        txt_surface2 = font.render(text2, True, color)
-        screen.fill(THECOLORS['white'])
-        background = pygame.image.load(PYGAME_BACKGROUND_FILE_PATH[0:-4] + '_resize' + '.jpg')
+        txt_surface = font.render(text, True, color1)
+        txt_surface2 = font.render(text2, True, color2)
+        button_surface = font.render('GO', True, button_color)
+
+        screen.fill(THECOLORS['white'])  # 背景颜色
+        background = pygame.image.load(PYGAME_BACKGROUND_FILE_PATH[0:-4] + '_resize' + '.jpg')  # 导入背景图
         screen.blit(background, (0, 0))
-        width = max(100, txt_surface.get_width()+10)
-        input_box1.w = width
+
+        width1 = max(100, txt_surface.get_width()+10)
+        input_box1.w = width1
+        width2 = max(100, txt_surface2.get_width()+10)
+        input_box2.w = width2
+        # width3 = max(100, button_surface.get_width())
+        # button.w = width3
+
+
         # Blit the text.
         screen.blit(txt_surface, (input_box1.x+5, input_box1.y+5))
         screen.blit(txt_surface2, (input_box2.x+5, input_box2.y+5))
+        screen.blit(button_surface, (button.x+5, button.y+5))
         # Blit the input_box rect.
-        pygame.draw.rect(screen, color, input_box1, 2)
-        pygame.draw.rect(screen, color, input_box2, 2)
+        pygame.draw.rect(screen, color1, input_box1, 2)
+        pygame.draw.rect(screen, color2, input_box2, 2)
+        pygame.draw.rect(screen, button_color, button, 2)
         # pygame.draw.rect(screen, THECOLORS['white'], [CAR_X, CAR_Y, CAR_SIZE[0], CAR_SIZE[1]], 0)
         pygame.display.flip()
     pygame.quit()
-
-
-
 
 
 if __name__ == '__main__':
