@@ -82,25 +82,11 @@ def get_coordinate(mark_pos_ofcamera: tuple, power_pos_ofcamera: tuple,
             # global CAR_X, CAR_Y
             if len(FIRST) == 30:
                 CarVar.CAR_X, CarVar.CAR_Y = get_correct_value(FIRST, threshold=0.1)
-                # print('color_track', globalVar.GloVar.CAR_X, globalVar.GloVar.CAR_Y)
-                # print(globalVar.GloVar.CA)
-                # print(GloVar.CAR_X, GloVar.CAR_Y)
-                # GloVar.CAR_X = CAR_X
-                # GloVar.CAR_Y = CAR_Y
-                # print(CAR_X, CAR_Y)
                 FIRST.clear()
-                # if len(SECOND) == 10:
-                #     (CAR_X, CAR_Y) = tuple(get_correct_value(SECOND, threshold=0.1))
-                #     print(CAR_X, CAR_Y)
-                #     SECOND.clear()
-                # else:
-                #     SECOND.append(get_correct_value(FIRST, threshold=0.1))
-                #     FIRST.clear()
-
             else:
-                # print(x, y/10.0)
-                FIRST.append([x, y/10.0])
-            # print("坐标为{},{}".format(x, y/10.0))
+                # print(x, y/
+                if x > 0 and y > 0:
+                    FIRST.append([x, y/10.0])
 
 
 
