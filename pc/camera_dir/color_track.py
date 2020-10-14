@@ -80,7 +80,7 @@ def get_coordinate(mark_pos_ofcamera: tuple, power_pos_ofcamera: tuple,
             y = math.sqrt(car_deepth ** 2 - (x - camera_pos_ofmap[0]) ** 2)
             # global FIRST
             # global CAR_X, CAR_Y
-            if len(FIRST) == 30:
+            if len(FIRST) == 20:
                 CarVar.CAR_X, CarVar.CAR_Y = get_correct_value(FIRST, threshold=0.1)
                 FIRST.clear()
             else:
@@ -95,8 +95,8 @@ def main():
     # pts = deque(maxlen=16)
     cap1 = cv2.VideoCapture(1)
     cap2 = cv2.VideoCapture(2)
-    cap1.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
-    cap2.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))  # ret = cap.set(3, 640)  # X
+    cap1.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
+    cap2.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))  # ret = cap.set(3, 640)  # X
     # ret = cap.set(4, 480)  # Y
 
 
