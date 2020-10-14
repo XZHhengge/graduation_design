@@ -2,14 +2,20 @@
 # Author: cmzz
 # @Time :2020/10/10
 
-"""pygame 配置"""
+'''配置文件'''
 import numpy as np
 import os
 
-MAP_WIDTH = 150 * 5  # 根据真实地图 5:1，真实地图单位cm
-MAP_HEIGHT = 140 * 5  # 相机在这一边
+VIR_SIZE_TIMES_OF_REALITY_SIZE = 5  # 虚拟的地图是真实地图 比例
+REALITY_SIZE_OF_MAP = (150, 140)  # 宽 × 高
+REALITY_SIZE_OF_CAR = (27, 15)  # 宽 × 高
 
-CAR_SIZE = (27 * 5, 15 * 5)
+
+MAP_WIDTH = REALITY_SIZE_OF_MAP[0] * VIR_SIZE_TIMES_OF_REALITY_SIZE  # 根据真实地图 5:1，真实地图单位cm
+MAP_HEIGHT = REALITY_SIZE_OF_MAP[1] * VIR_SIZE_TIMES_OF_REALITY_SIZE  # 相机在这一边
+
+CAR_SIZE = (REALITY_SIZE_OF_CAR[0] * VIR_SIZE_TIMES_OF_REALITY_SIZE,
+            REALITY_SIZE_OF_CAR[1] * VIR_SIZE_TIMES_OF_REALITY_SIZE)
 
 # 在线画画 http://www.pixvi.net/piline/drawer.php
 '''配置pygame背景图'''
@@ -38,8 +44,8 @@ if not os.path.exists(PYGAME_BACKGROUND_FILE_PATH[0:-4] + '_resize' + '.jpg') an
 '''
 POSITION_A = (0, MAP_HEIGHT)
 POSITION_B = (MAP_WIDTH, MAP_HEIGHT)
-POSITION_C = (MAP_WIDTH, MAP_HEIGHT * 3 / 5)
-POSITION_D = (0, MAP_HEIGHT * 3 / 5)
+POSITION_C = (MAP_WIDTH, MAP_HEIGHT * 3 / VIR_SIZE_TIMES_OF_REALITY_SIZE)
+POSITION_D = (0, MAP_HEIGHT * 3 / VIR_SIZE_TIMES_OF_REALITY_SIZE)
 POSITION_E = (0, 0)
 POSITION_F = (MAP_WIDTH, 0)
 

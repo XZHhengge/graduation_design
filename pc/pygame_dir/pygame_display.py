@@ -4,7 +4,8 @@
 
 import pygame
 from pygame.color import THECOLORS
-from config import MAP_WIDTH, MAP_HEIGHT, CAR_SIZE, PYGAME_BACKGROUND_FILE_PATH, CarVar, Tcp
+from config import MAP_WIDTH, MAP_HEIGHT, CAR_SIZE, PYGAME_BACKGROUND_FILE_PATH, CarVar, Tcp, \
+    VIR_SIZE_TIMES_OF_REALITY_SIZE
 
 
 # 初始化
@@ -33,9 +34,9 @@ def creat():
     text2 = ''
     done = False
     # 文本输入框
-    input_box1 = pygame.Rect(MAP_WIDTH/7, MAP_HEIGHT+50, 32, 32)
-    input_box2 = pygame.Rect(MAP_WIDTH*3/7, MAP_HEIGHT+50, 32, 32)
-    button = pygame.Rect(MAP_WIDTH*5/7, MAP_HEIGHT+50, 44, 30)
+    input_box1 = pygame.Rect(MAP_WIDTH/(VIR_SIZE_TIMES_OF_REALITY_SIZE+2), MAP_HEIGHT+50, 32, 32)
+    input_box2 = pygame.Rect(MAP_WIDTH*3/(VIR_SIZE_TIMES_OF_REALITY_SIZE+2), MAP_HEIGHT+50, 32, 32)
+    button = pygame.Rect(MAP_WIDTH*5/(VIR_SIZE_TIMES_OF_REALITY_SIZE+2), MAP_HEIGHT+50, 44, 30)
     # 加载小车的图片，更新图像, 小车图片也是按照5：1
     # pngFileName = '/home/perfectman/PycharmProjects/graduation_design/pc/pygame_dir/car2.png'
 
@@ -111,8 +112,8 @@ def creat():
         CAR_X, CAR_Y = CarVar.CAR_X, CarVar.CAR_Y
         if CAR_X and CAR_Y:
             screen.blit(background, (0, 0))
-            CAR_X = 5 * CAR_X - CAR_SIZE[0] / 2  # 减除半个车距
-            CAR_Y = -((CAR_Y * 5) - MAP_HEIGHT + CAR_SIZE[1] / 2)
+            CAR_X = VIR_SIZE_TIMES_OF_REALITY_SIZE * CAR_X - CAR_SIZE[0] / 2  # 减除半个车距
+            CAR_Y = -((CAR_Y * VIR_SIZE_TIMES_OF_REALITY_SIZE) - MAP_HEIGHT + CAR_SIZE[1] / 2)
             screen.blit(car, [CAR_X, CAR_Y])
             # print(int(CAR_X), int(CAR_Y), 'pygame')
         # if car_x > 750 or car_x < 0:
