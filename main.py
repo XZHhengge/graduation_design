@@ -9,7 +9,7 @@ from raspberryPi.server_stream import ReceiveVideo
 
 if __name__ == '__main__':
     t3 = threading.Thread(target=ReceiveVideo)
-    t3.setDaemon(True)
+    # t3.setDaemon(True)
     t3.start()
     t2 = threading.Thread(target=color_track.main)
     t2.start()

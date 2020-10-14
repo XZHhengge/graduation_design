@@ -8,7 +8,7 @@ import threading
 from pc.process_image.process import process_img2
 import pygame
 from pygame.locals import *
-from config import CarVar, MAP_WIDTH, MAP_HEIGHT, NODE_DICT, Tcp
+from config import CarVar, MAP_WIDTH, MAP_HEIGHT, NODE_DICT, Tcp, EDGE_LIST
 
 
 def ReceiveVideo():
@@ -27,6 +27,7 @@ def ReceiveVideo():
         buf = b''  # buf是一个byte类型
         while count:
             # 接受TCP套接字的数据。数据以字符串形式返回，count指定要接收的最大数据量.
+            # if sock.shutdown()
             newbuf = sock.recv(count)
             if not newbuf:
                 return None
@@ -34,15 +35,18 @@ def ReceiveVideo():
             count -= len(newbuf)
         return buf
 
-    conn, addr = s.accept()
-    Tcp.CONN = conn
-    print('connect from:' + str(addr))
+    def get_accept():
+        global conn
+        conn, addr = s.accept()  # 等待
+        Tcp.CONN = conn
+        print('connect from:' + str(addr))
+        t = threading.Thread(target=send, args=(conn,))
+
+        t.start()
     # 接受TCP连接并返回（conn,address）,其中conn是新的套接字对象，可以用来接收和发送数据。addr是连接客户端的地址。
     # 没有连接则等待有连接
-    # get_accept()
-    t = threading.Thread(target=send, args=(conn,))
+    get_accept()
 
-    t.start()
     try:
         while 1:
             # start = time.time()  # 用于计算帧率信息
@@ -61,13 +65,12 @@ def ReceiveVideo():
 
             #     if cv2.waitKey(1) & 0xFF == ord('q'):
             #         break
-            # else:
-            #     cv2.destroyAllWindows()
-            #     while 1:
-            #         print('xxx')
-            #         # get_accept()
-            #         if conn:
-            #             break
+            else:
+                # cv2.destroyAllWindows()
+                while 1:
+                    get_accept()
+                    if conn:
+                        break
 
     finally:
         s.close()
@@ -78,6 +81,7 @@ def send(conn):
     # s = []
     node_list = []
     node_list.append(NODE_DICT)
+    node_list.append(EDGE_LIST)
     node_list.append((MAP_WIDTH, MAP_HEIGHT))
     conn.send(bytes(str(node_list).ljust(300), encoding='utf-8'))
     time.sleep(2)
