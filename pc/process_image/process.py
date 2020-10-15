@@ -30,7 +30,7 @@ def process_img2(img):
     # cv2.imshow("eeaa", edges)
     # cv2.imshow("edges", edges)
     # 2. 2. 标记四个坐标点用于ROI截取
-    points = np.array([[0, 370], [0, 240], [130, 125], [470, 125], [640, 240], [640, 370]], np.int32)
+    points = np.array([[0, 370], [0, 240], [130, 150], [470, 150], [630, 240], [630, 370]], np.int32)
     # points = np.array([[0, 120], [0, 240], [640, 240], [640, 120]], np.int32) # half
     roi_edges = roi_mask(blur_gray, [points])
     # 3. 霍夫直线提取
@@ -105,8 +105,9 @@ def count_verdict(lines, threshold, ver_threshold):
                                                                                                 p2=(x4, y4),
                                                                                                 p3=(x1, y1)) * cross(
                     p1=(x3, y3), p2=(x4, y4), p3=(x2, y2)) <= 0:
+                pass
                 # print(x1, y1, x2, y2, x3, y3, x4, y4)
-                print("相交")
+                # print("相交")
             # else:
             # print("")
         # if abs((x2 - x1) * (y4 - y3) - (x4 - x3) * (y2 - y1)) < threshold:  # gongxaing
@@ -140,10 +141,16 @@ def count_verdict(lines, threshold, ver_threshold):
 
 
 def show_lines_data(lines: List, label: str):
-    for line in lines:
-        for x1, y1, x2, y2 in line:
+    if len(lines) == 1:
+        for x1, y1, x2, y2 in lines:
             plt.suptitle(label)
             plt.plot([x1, x2], [y1, y2])
+    else:
+        for line in lines:
+            print(line)
+            for x1, y1, x2, y2 in line:
+                plt.suptitle(label)
+                plt.plot([x1, x2], [y1, y2])
     plt.show()
     # fig = plt.figure(1)
     # ax  =fig.gca()
@@ -153,8 +160,8 @@ def draw_lanes2(img, lines, threshold):
     # a. 划分左右车道和水平车道
     left_lines, right_lines, verdict = [], [], []
 
-    # count_verdict(lines, threshold=0.1, ver_threshold=0.3000000000000000)
-    # count_verdict(lines, threshold=0.1, ver_threshold=0.3000000000000000)
+    count_verdict(lines, threshold=0.1, ver_threshold=0.3000000000000000)
+    count_verdict(lines, threshold=0.1, ver_threshold=0.3000000000000000)
     for line in lines:
         for x1, y1, x2, y2 in line:
             k = (y2 - y1) / (x2 - x1)  # 斜率
@@ -167,6 +174,7 @@ def draw_lanes2(img, lines, threshold):
 
     if (len(left_lines) <= 0 or len(right_lines) <= 0):
         return
+
     # draw_lines(img, left_lines)
     # draw_lines(img, right_lines)
 
@@ -176,25 +184,30 @@ def draw_lanes2(img, lines, threshold):
     # print("垂直个数", len(verdict))
     # draw_lines(img, right_lines)
     # b. 清理异常数据
-    # clean_lines(left_lines, 0.1)
-    # clean_lines(right_lines, 0.01)
-    # clean_lines(verdict, 0.1)
+    clean_lines(left_lines, 0.1)
+    clean_lines(right_lines, 0.1)
+    clean_lines(verdict, 0.1)
 
-    # show_lines_data(right_lines, label='right')
-    # show_lines_data(left_lines, label='left')
-    # show_lines_data(verdict, label='verdict')
+    # show_lines_data(right_lines, label='right_org')
+    # show_lines_data(left_lines, label='left_org')
+    # show_lines_data(verdict, label='verdict_org')
     draw_lines(img, right_lines, dir=1)  # 黄色
     draw_lines(img, left_lines, dir=2)  # 红色
     draw_lines(img, verdict, dir=3)  # 绿色
-    # c. 得到左右车道线点的集合，拟合直线
+    # print('左边有{}'.format(len(left_lines)))
+    # print('右边有{}'.format(len(right_lines)))
+    # print('水平有{}'.format(len(verdict)))
+    # c. 得到左右车道线点的集合，
+    # print(left_lines)
+    # left_array = np.array(left_lines)
+    # print(left_array.mean(axis=0))
     # left_points = [(x1, y1) for line in left_lines for x1, y1, x2, y2 in line]
-    # # print(left_points)
     # left_points = left_points + [(x2, y2) for line in left_lines for x1, y1, x2, y2 in line]
     # right_points = [(x1, y1) for line in right_lines for x1, y1, x2, y2 in line]
     # right_points = right_points + [(x2, y2) for line in right_lines for x1, y1, x2, y2 in line]
-
+    #
     # left_results = least_squares_fit(left_points, 325, img.shape[0])
-    # show_lines_data(left_results, label="left_result")
+    # # show_lines_data(left_results, label="left_result")
     # right_results = least_squares_fit(right_points, 325, img.shape[0])
     # print(left_results, "lest")
     # print(right_results, "right")
@@ -206,9 +219,18 @@ def draw_lanes2(img, lines, threshold):
     # 或者只画车道线
     # cv2.line(img, left_results[0], left_results[1], (105, 255, 255), 5)
     # cv2.line(img, right_results[0], right_results[1], (101, 30, 255), 5)
-    # draw_lines(img, left_results, dir=1)  # 黄色
-    # draw_lines(img, right_results, dir=2)  # 红色
+    left_results = average_lines(left_lines)
+    # print(left_results)
+    # cv2.line(img, (left_results[0], left_results[1]), (left_results[2], left_results[3]), (255, 255, 255), 5)
+    right_results = average_lines(right_lines)
+    verdict = average_lines(verdict)
+    # print(left_results, right_results, verdict, 'xxxxxxxxxxxxxx')
+    draw_lines(img, left_results, dir=1)  # 黄色
+    draw_lines(img, right_results, dir=2)  # 红色
     draw_lines(img, verdict, dir=3)  # 绿色
+    # show_lines_data([left_results], label='right')
+    # show_lines_data([right_results], label='left')
+    # show_lines_data([verdict], label='verdict')
 
 
 def draw_lines(img, lines, dir: int):
@@ -228,7 +250,20 @@ def draw_lines(img, lines, dir: int):
 
 
 def merge_lines(lines: list):
+    #  lines = [line, line], line:[x1, y1, x2, y2]
     return lines
+
+
+def average_lines(lines: list) -> list:
+    if len(lines) == 1:
+        print('只有一条')
+        return lines[0]
+    else:
+        num = len(lines)
+        print('有{}条线'.format(num))
+        array = np.array(lines)
+        return np.mean(array, axis=0).astype(int)[0]
+
 
 
 def clean_lines(lines, threshold):

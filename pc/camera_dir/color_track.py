@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import math
+import time
 import cv2
 import numpy as np
 from pc.camera_dir import camera_configs2 as camera_configs
@@ -133,7 +134,6 @@ def main():
         # 获取每一帧
         ret1, frame1 = cap1.read()
         ret2, frame2 = cap2.read()
-
         # 根据更正map对图片进行重构
         img1_rectified = cv2.remap(frame1, camera_configs.left_map1, camera_configs.left_map2, cv2.INTER_LINEAR)
         img2_rectified = cv2.remap(frame2, camera_configs.right_map1, camera_configs.right_map2, cv2.INTER_LINEAR)
