@@ -13,7 +13,7 @@ from config import CarVar, MAP_WIDTH, MAP_HEIGHT, NODE_DICT, Tcp, EDGE_LIST, VIR
 
 def ReceiveVideo():
     # IP地址'0.0.0.0'为等待客户端连接
-    address = ('0.0.0.0', 8003)
+    address = ('0.0.0.0', 8004)
     # 建立socket对象，参数意义见https://blog.csdn.net/rebelqsp/article/details/22109925
     # socket.AF_INET：服务器之间网络通信
     # socket.SOCK_STREAM：流式socket , for TCP
