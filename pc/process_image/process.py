@@ -3,6 +3,7 @@ from typing import List
 import matplotlib.pyplot as plt
 from itertools import combinations
 import numpy as np
+from numpy import array, int32
 import cv2
 
 # 高斯滤波核大小
@@ -167,7 +168,7 @@ def draw_lanes2(img, lines, threshold):
     # a. 划分左右车道和水平车道,不能单独地按照平均值划分，
     left_lines, right_lines, verdict = [], [], []
     for line in lines:
-        for x1, y1, x2, y2 in line:
+        for x1, y1, x2, y2 in line:  # line = [ x1, y1, x2, y2 ]
             k = (y2 - y1) / (x2 - x1)  # 斜率
             if k < -threshold:
                 left_lines.append(line)
@@ -190,14 +191,15 @@ def draw_lanes2(img, lines, threshold):
     # b. 清理异常数据
     clean_lines(left_lines, 0.1)
     clean_lines(right_lines, 0.1)
-    clean_lines(verdict, 0.1)
-
+    clean_lines(verdict, 0.5)
     # show_lines_data(right_lines, label='right_org')
     # show_lines_data(left_lines, label='left_org')
     # show_lines_data(verdict, label='verdict_org')
     draw_lines(img, right_lines, dir=1)  # 黄色
     draw_lines(img, left_lines, dir=2)  # 红色
     draw_lines(img, verdict, dir=3)  # 绿色
+    print(verdict)
+    count_line_cluster(lines=verdict, r=30)
     # print('左边有{}'.format(len(left_lines)))
     # print('右边有{}'.format(len(right_lines)))
     # print('水平有{}'.format(len(verdict)))
@@ -209,9 +211,10 @@ def draw_lanes2(img, lines, threshold):
     # left_points = [(x1, y1) for line in left_lines for x1, y1, x2, y2 in line]
     # # left_points = left_points + [(x2, y2) for line in left_lines for x1, y1, x2, y2 in line]
     # right_points = [(x1, y1) for line in right_lines for x1, y1, x2, y2 in line]
-    verdict_points = [(x1, y1) for line in verdict for x1, y1, x2, y2 in line]
-    count = count_horizontal(verdict_points, r=50)
-    print(count)
+    # verdict_points = [(x1, y1) for line in verdict for x1, y1, x2, y2 in line]
+    # print(verdict_points)
+    # count = count_horizontal(verdict_points, r=150)
+    # print(count)
     # right_points = right_points + [(x2, y2) for line in right_lines for x1, y1, x2, y2 in line]
 
     # left_results = least_squares_fit(left_points, 325, img.shape[0])
@@ -265,17 +268,24 @@ def draw_lines(img, lines, dir: int):
             cv2.line(img, (lines[0], lines[1]), (lines[2], lines[3]), color, 5)
 
 
-def count_horizontal(data: list, r: int):
-    count = 0
-    while data:
-        a = data[0]
-        del data[0]
-        for index, b in enumerate(data):
-            if np.sqrt(np.sum(np.array(a) - np.array(b)) ** 2) < r:
-                del data[index]
-        count += 1
-        if len(data) == 1: break
-    return count
+def count_line_cluster(lines, r: int) -> int:
+    copy_line = sorted(lines, key=lambda x: x[0][0])
+    count_list = [copy_line[0]]
+    # copy_line
+    for j in range(len(copy_line) - 1):
+        for i in range(len(count_list)):
+            if get_two_line_short_length(copy_line[j + 1][0], count_list[i][0]) > r:
+                if len(count_list) == i + 1:
+                    count_list.append(copy_line[j + 1])
+                    break
+            else:
+                if copy_line[j + 1][0][2] > count_list[i][0][2]:
+                    count_list[i] = copy_line[j + 1]
+                    break
+                else:
+                    break
+    print(len(count_list))
+    return len(count_list)
 
 
 def average_lines(lines: list) -> list:
@@ -289,6 +299,12 @@ def average_lines(lines: list) -> list:
 
 
 def clean_lines(lines, threshold):
+    for index, line in enumerate(lines):
+        for x1, y1, x2, y2 in line:
+            if np.sqrt((x1 - x2)**2 + (y1 - y2)**2) < 100:
+                # print(line)
+                lines.pop(index)
+
     # 迭代计算斜率均值，排除掉与差值差异较大的数据
     slope = [(y2 - y1) / (x2 - x1) for line in lines for x1, y1, x2, y2 in line]
     while len(lines) > 0:
@@ -325,6 +341,26 @@ def least_squares_fit(point_list, ymin, ymax):
 
     return [(xmin, ymin), (xmax, ymax)]
 
+
+def get_two_line_short_length(point1, point2):
+    x1, y1, n = get_x_y(point1)
+    x2, y2, m = get_x_y(point2)
+    ar = np.zeros((n, m))  # 11*11矩阵
+    for i in range(n):  # 欧氏距离
+        ar[i, :] = np.sqrt((x2 - x1[i]) ** 2 + (y2 - y1[i]) ** 2)
+    return ar.min()  # 取最小的
+
+
+def get_x_y(point):
+    g = point[1] - point[3]  # y1 - y2
+    h = point[0] - point[2]  # x1 - x2 #  这个始终为负(point始终在左边)
+    if g < 0 or h < 0:
+        t = array([-i / 10 for i in range(0, 11)])  # 斜率为负数, 这里越长，精度越高
+    else:
+        t = array([i / 10 for i in range(0, 11)])  # 斜率不存在
+    x = array(point[0]) + h * t  # 线段横坐标平均取11个点
+    y = array(point[1]) + g * t  # 线段纵坐标平均取11个点
+    return x, y, len(t)
 
 if __name__ == '__main__':
     # file = '/home/perfectman/PycharmProjects/graduation_design/raspberryPi/straight.jpg'
