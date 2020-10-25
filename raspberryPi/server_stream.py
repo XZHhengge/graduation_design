@@ -63,8 +63,8 @@ def ReceiveVideo():
                 # cv2.imshow("process2", process1.process_img2(decimg))
                 cv2.imshow('process1', pro1)  # 显示图像
 
-            #     if cv2.waitKey(1) & 0xFF == ord('q'):
-            #         break
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    break
             else:
                 # cv2.destroyAllWindows()
                 while 1:

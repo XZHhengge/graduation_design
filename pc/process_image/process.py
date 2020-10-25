@@ -38,10 +38,9 @@ def process_img2(img):
     roi_edges = roi_mask(blur_gray, [points])
     # 3. 霍夫直线提取
     drawing, lines = hough_lines(roi_edges, rho, theta, threshold, min_line_len, max_line_gap)
-    # print(len(lines))
-    # print(lines[0])
     # 4. 车道拟合计算
-    # draw_lanes2(drawing, lines)     # 画出直线检测结果
+    if lines:
+        draw_lanes2(drawing, lines, threshold=0.3)     # 画出直线检测结果
     # 5. 最终将结果合在原图上
     # result = cv2.addWeighted(img, 0.9, drawing, 0.2, 0)
     # cv2.waitKey(0)
@@ -91,16 +90,19 @@ def show_lines_data(lines: List, label: str):
 
 def draw_lanes2(img, lines, threshold):
     # a. 划分左右车道和水平车道,不能单独地按照平均值划分，
-    left_lines, right_lines, verdict = [], [], []
+    left_lines, right_lines, verdict, unkown = [], [], [], []
     for line in lines:
         for x1, y1, x2, y2 in line:  # line = [ x1, y1, x2, y2 ]
-            k = (y2 - y1) / (x2 - x1)  # 斜率
-            if k < -threshold:
-                left_lines.append(line)
-            elif k > +threshold:
-                right_lines.append(line)
+            if (x2 - x1) == 0 or (y2 - y1) == 0:
+                unkown.append(line)
             else:
-                verdict.append(line)
+                k = (y2 - y1) / (x2 - x1)  # 斜率
+                if k < -threshold:
+                    left_lines.append(line)
+                elif k > +threshold:
+                    right_lines.append(line)
+                else:
+                    verdict.append(line)
 
     if (len(left_lines) <= 0 or len(right_lines) <= 0):
         return
@@ -118,7 +120,8 @@ def draw_lanes2(img, lines, threshold):
     if verdict:
         draw_lines(img, verdict, dir=3)  # 绿色
         count_line_cluster(lines=verdict, r=30)
-
+    if unkown:
+        draw_lines(img, unkown, dir=4)
     left_results = average_lines(left_lines)
     right_results = average_lines(right_lines)
     if right_results:
@@ -148,6 +151,8 @@ def draw_lines(img, lines, dir: int):
         color = [101, 30, 255]  # 红色
     elif dir == 3:
         color = [101, 198, 39]  # 绿色
+    elif dir == 4:
+        color = [255, 255, 255]
     # print(lines)
     if len(lines) > 0:
         if not isinstance(lines[0], int):
