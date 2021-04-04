@@ -1,12 +1,55 @@
 ## 基于双目定位的自动驾驶小车
-## 难点：不管是树莓派还是主机下的图像处理能力都很慢，导致定位不够即使，小车电池电压下降，左右轮的PWM调速不能为固定值
+[github链接](https://github.com/XZHhengge/graduation_design)
+##  基本构思：
+1.使用树莓派作为小车的操作中心，树莓派通过摄像头进行道路的检测，进而使用PWM模式对L298N电机驱动模块进行对小车轮子的前进、后退、左右转弯。
+2.主机使用MATLAB对双目摄像头进行标定，使用SGBM/BM算法进行对小车的空间的三维坐标的建立。
+3.在主机pygame界面上构建出真实地图的平面图，通过双目摄像头获得到小车真实的三维坐标，主机在pygame上的平面图出小车的位置，并把真实的三维坐标和地图信息通过tcp发给树莓派小车。
+树莓派小车通过道路检测和地图信息并使用Dijkstra进行最短路径的路线规划并进行自动驾驶，并实时通过接收真实的三维坐标进行自我矫正和分析。
+## 难点：不管是树莓派还是主机下的图像处理能力都很慢，导致定位不够即使，小车电池电压下降，左右轮的PWM调速不能为固定值导致转弯困难
 
 
+
+把raspberryPi文件夹移动树莓派，分别运行mian.py
+.
+├── car2.png  小车图  
+├── config.py   配置文件
+├── main.py
+├── paint1.jpg   地图
+├── pc  主机下文件
+│   ├── camera_dir
+│   │   ├── camera_configs2.py  # 摄像头标定后参数
+│   │   ├── color_track.py  #  双目摄像头定位
+│   │   ├── depth2.py        # 单个运行标定后效果文件
+│   │   ├── depth.py         # 同上
+│   │   ├── get_hsv.py       #  单个运行调整参数得到hsv
+│   │   └── take_piture.py   #  同上上
+│   ├── graph_dir             #  地图规划信息dir
+│   │   ├── Graph3.py         # 地图规划sample脚本
+│   │   └── Graph.py          #  被调用的地图规划
+│   ├── process_image          # 图像处理dir，先在主机上写图像处理的代码
+│   │   └── process.py          # 图像处理
+│   ├── pygame_dir
+│   │   ├── car.png             # 小车图
+│   │   └── pygame_display.py   # pygame显示
+│   ├── raspPi                  #与树莓派相关
+│   ├── Raspberry_Pi3_GIOP.png
+│   └── server_stream.py
+├── raspberryPi         # 树莓派里
+│   ├── config.py
+│   ├── distance_check.py
+│   ├── drive_car.py
+│   ├── main.py
+│   ├── path.py
+│   ├── process_img.py
+│   ├── README.md
+│   ├── requirements.txt
+│   ├── stream_client.py
+│   └── test.py
+├── README.md
+└── requirements.txt
 
 ##  未来构想图
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/20200922165719852.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwOTY1MTc3,size_16,color_FFFFFF,t_70#pic_center)
-
-
 ## 总体分为两部分
 # 硬件:树莓派3一个，L298N电机一个，树莓派官方摄像头一个，HC-SR04超声波模块一个.使用一个12V的电池两头供电,一个12V转到5V供到树莓派，一个12V直接供给电机
 参考:
@@ -17,12 +60,23 @@
 
 
 树莓派3的GPIO图
+##  要注意Python驱动GPIO的模块为RPi.GPIO,下面这个BOARD模式指的是Pin#，不是NAME（如下图所示）
+```python
+import RPi.GPIO as GPIO
+import time
+from config import Road, Car
+# 设置 GPIO 模式为 BOARD
+GPIO.setmode(GPIO.BOARD)
+```
+
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/2020092217000072.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwOTY1MTc3,size_16,color_FFFFFF,t_70#pic_center)
 ##  成品图:
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/20200922170717523.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwOTY1MTc3,size_16,color_FFFFFF,t_70#pic_center)
+##  双目摄像头如下
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20210404192953419.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwOTY1MTc3,size_16,color_FFFFFF,t_70)
 
 # 软件部分
-##  定位使用双目摄像头进行定位小车位置
+##  使用双目摄像头进行定位小车
 先使用matlab对双目摄像头进行标定
 参考 
 [python、opencv 双目视觉测距代码](https://blog.csdn.net/ilovestudy2/article/details/106340085?utm_medium=distribute.pc_aggpage_search_result.none-task-blog-2~all~first_rank_v2~rank_v25-2-106340085.nonecase&utm_term=%E5%8F%8C%E7%9B%AE%E8%A7%86%E8%A7%89%E6%B5%8Bpython%E5%AE%9E%E7%8E%B0)
@@ -53,10 +107,16 @@ mode=cv2.STEREO_SGBM_MODE_HH 不同模式之间没有太特别差异
 ##  总的来说，调节 num 、blockSize和UniquenessRatio是比较明显的
 
 ##  定位
+##  MARK（红色）如下图所示：
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20210404192758299.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwOTY1MTc3,size_16,color_FFFFFF,t_70)
+
 
 ```python
+def get_coordinate(mark_pos_ofcamera: tuple, power_pos_ofcamera: tuple,
+                   camera_pos_ofmap: tuple, threeD, mark_pos_ofmap) -> tuple:
     '''
-        位置的摆放如下，单位都是cm
+        一般位置的摆放如下，单位都是cm
     ---------------------------------MARK
     -                                                          -
     -                        CAR     					    -
@@ -93,25 +153,14 @@ mode=cv2.STEREO_SGBM_MODE_HH 不同模式之间没有太特别差异
             print("坐标为{},{}".format(x, y/10.0))
             return x, y / 10
 ```
-**效果还可以**
+**定位如下**
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/2020092619254525.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwOTY1MTc3,size_16,color_FFFFFF,t_70#pic_center)
-
-
-## 小车自动驾驶：方法一：深度学习，方法二：通过车道的直角判断（不理想）
-
-# 方法二的步骤：
- 1.灰度化 
- 2.高斯模糊
- 3.Canny边缘检测
- 4.不规则ROI区域截取
- 5.霍夫直线检测
- 6.车道计算
- 7.直角计算
-
-
-
-## opencv画车道
+##  地图模拟
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20201014095217807.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwOTY1MTc3,size_16,color_FFFFFF,t_70#pic_center)
+##  真实地图如下
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20210404193056935.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwOTY1MTc3,size_16,color_FFFFFF,t_70)
+## opencv画车道参考：
 [[1]](http://codec.wang/#/opencv/basic/challenge-03-lane-road-detection)
 [[2]](https://github.com/Sentdex/pygta5/blob/master/Tutorial%20Codes/Part%201-7/part-5-line-finding.py)
 
-##  后面继续更新
+
