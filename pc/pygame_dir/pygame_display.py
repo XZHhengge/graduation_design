@@ -6,6 +6,10 @@ import pygame
 from pygame.color import THECOLORS
 from config import MAP_WIDTH, MAP_HEIGHT, CAR_SIZE, PYGAME_BACKGROUND_FILE_PATH, CarVar, Tcp, \
     VIR_SIZE_TIMES_OF_REALITY_SIZE
+from pygame.locals import *
+
+left = 20
+right = 20
 
 
 # 初始化
@@ -51,6 +55,7 @@ def creat():
 
     # 主循环
     # mRunning = True
+    pygame.key.set_repeat(500, 5)
     while not done:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -97,7 +102,73 @@ def creat():
                         text2 = text2[:-1]
                     else:
                         text2 += event.unicode
-
+                global left, right
+                if event.key == pygame.K_INSERT:
+                    left += 1
+                    if Tcp.CONN and 100 > left > 10:
+                        Tcp.CONN.send(bytes(str(len('left'+str(left))).ljust(20), encoding='utf-8'))
+                        Tcp.CONN.send(bytes('left'+str(left), encoding='utf-8'))
+                    print('left up')
+                elif event.key == pygame.K_DELETE:
+                    left -= 1
+                    if Tcp.CONN and 100 > left > 10:
+                        Tcp.CONN.send(bytes(str(len('left'+str(left))).ljust(20), encoding='utf-8'))
+                        Tcp.CONN.send(bytes('left'+str(left), encoding='utf-8'))
+                    print('left down')
+                elif event.key == pygame.K_PAGEUP:
+                    right += 1
+                    if Tcp.CONN and 100 > right > 10:
+                        Tcp.CONN.send(bytes(str(len('right'+str(right))).ljust(20), encoding='utf-8'))
+                        Tcp.CONN.send(bytes('right'+str(right), encoding='utf-8'))
+                    print('right up')
+                elif event.key == pygame.K_PAGEDOWN:
+                    right -= 1
+                    if Tcp.CONN and 100 > right > 10:
+                        Tcp.CONN.send(bytes(str(len('right'+str(right))).ljust(20), encoding='utf-8'))
+                        Tcp.CONN.send(bytes('right'+str(right), encoding='utf-8'))
+                    print('right down')
+                elif event.key == pygame.K_SPACE:
+                    if Tcp.CONN:
+                        Tcp.CONN.send(bytes(str(len('space1')).ljust(20), encoding='utf-8'))
+                        Tcp.CONN.send(bytes(str('space1'), encoding='utf-8'))
+                    print('SPACE')
+                elif event.key == pygame.K_UP:
+                    if Tcp.CONN:
+                        Tcp.CONN.send(bytes(str(len('upup1')).ljust(20), encoding='utf-8'))
+                        Tcp.CONN.send(bytes(str('upup1'), encoding='utf-8'))
+                    print('up')
+                elif event.key == pygame.K_LEFT:
+                    if Tcp.CONN:
+                        Tcp.CONN.send(bytes(str(len('turnl1')).ljust(20), encoding='utf-8'))
+                        Tcp.CONN.send(bytes(str('turnl1'), encoding='utf-8'))
+                elif event.key == pygame.K_RIGHT:
+                    if Tcp.CONN:
+                        Tcp.CONN.send(bytes(str(len('turnr1')).ljust(20), encoding='utf-8'))
+                        Tcp.CONN.send(bytes(str('turnr1'), encoding='utf-8'))
+                elif event.key == pygame.K_DOWN:
+                    right = 20
+                    left = 20
+        # pressed_keys = pygame.key.get_pressed()
+        #
+        # if pressed_keys[K_INSERT]:
+        #     left = +2
+        #     print('pre left up')
+        #     if Tcp.CONN:
+        #         Tcp.CONN.send(bytes(str(len(str(left))).ljust(20), encoding='utf-8'))
+        #         Tcp.CONN.send(bytes(str(left), encoding='utf-8'))
+        # if pressed_keys[K_DELETE]:
+        #     right = + 2
+        #     if Tcp.CONN:
+        #         Tcp.CONN.send(bytes(str(len(str(right))).ljust(20), encoding='utf-8'))
+        #         Tcp.CONN.send(bytes(str(right), encoding='utf-8'))
+        #     print('pre left down')
+        # # 前进、后退
+        # if pressed_keys[K_PAGEUP]:
+        #     movement_direction = +1.
+        #     print('pre right up')
+        # if pressed_keys[K_PAGEDOWN]:
+        #     movement_direction = -1.
+        #     print('pre right down')
         # 时间延迟
         # pygame.time.delay(20)
         # # 覆盖痕迹

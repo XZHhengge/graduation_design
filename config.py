@@ -48,7 +48,7 @@ POSITION_C = (MAP_WIDTH, MAP_HEIGHT * 3 / VIR_SIZE_TIMES_OF_REALITY_SIZE)
 POSITION_D = (0, MAP_HEIGHT * 3 / VIR_SIZE_TIMES_OF_REALITY_SIZE)
 POSITION_E = (0, 0)
 POSITION_F = (MAP_WIDTH, 0)
-
+#  初始化地图
 NODE_DICT = {
     'A': POSITION_A, 'B': POSITION_B, 'C': POSITION_C, 'D': POSITION_D, 'E': POSITION_E, 'F': POSITION_F,
 }
@@ -77,11 +77,19 @@ yellow_upper = np.array([31, 255, 255])
 # lower_black = np.array([0, 0, 0])
 # upper_black = np.array([180, 255, 30])
 
+# 地图颜色 LH, LS, LV
+#          UH, US, UV
+map_lower = np.array([0, 0, 90])
+map_upper = np.array([255, 255, 255])
 
 # 红色
 red_lower = np.array([156, 180, 0])
 red_upper = np.array([255, 255, 255])
 
+
+# 地图最好阈值分割
+# cv2.threshold(img, 90, 255, cv2.THRESH_BINARY)
+# cv2.threshold(img, 90, 255, cv2.THRESH_BINARY_INV)
 
 # 小车坐标
 
@@ -91,6 +99,8 @@ class CarVar:
 
 class Map:
     SOURCE, TARGET = 0, 0
+    Pic = None
+    Flag = False
 
 
 # tcp连接

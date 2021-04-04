@@ -1,7 +1,11 @@
 ## 基于双目定位的自动驾驶小车
+## 难点：不管是树莓派还是主机下的图像处理能力都很慢，导致定位不够即使，小车电池电压下降，左右轮的PWM调速不能为固定值
 
-##  构想图
+
+
+##  未来构想图
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/20200922165719852.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwOTY1MTc3,size_16,color_FFFFFF,t_70#pic_center)
+
 
 ## 总体分为两部分
 # 硬件:树莓派3一个，L298N电机一个，树莓派官方摄像头一个，HC-SR04超声波模块一个.使用一个12V的电池两头供电,一个12V转到5V供到树莓派，一个12V直接供给电机
@@ -51,10 +55,8 @@ mode=cv2.STEREO_SGBM_MODE_HH 不同模式之间没有太特别差异
 ##  定位
 
 ```python
-def get_coordinate(mark_pos_ofcamera: tuple, power_pos_ofcamera: tuple,
-                   camera_pos_ofmap: tuple, threeD, mark_pos_ofmap) -> tuple:
     '''
-        一般位置的摆放如下，单位都是cm
+        位置的摆放如下，单位都是cm
     ---------------------------------MARK
     -                                                          -
     -                        CAR     					    -
@@ -95,7 +97,7 @@ def get_coordinate(mark_pos_ofcamera: tuple, power_pos_ofcamera: tuple,
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/2020092619254525.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwOTY1MTc3,size_16,color_FFFFFF,t_70#pic_center)
 
 
-## 小车自动驾驶：方法一：深度学习，方法二：通过车道的直角判断
+## 小车自动驾驶：方法一：深度学习，方法二：通过车道的直角判断（不理想）
 
 # 方法二的步骤：
  1.灰度化 

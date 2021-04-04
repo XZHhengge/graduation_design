@@ -4,10 +4,12 @@ import time
 import cv2
 import numpy as np
 from pc.camera_dir import camera_configs2 as camera_configs
-from config import blue_upper, yellow_upper, red_lower, blue_lower, red_upper, yellow_lower, MARK_POS_OF_MAP, CAMERA_POS_OF_MAP, CarVar
+from config import blue_upper, yellow_upper, red_lower, blue_lower, red_upper, yellow_lower, MARK_POS_OF_MAP, CAMERA_POS_OF_MAP, CarVar, Map
 
 # 消除差异
 FIRST = []
+
+# 通过设定好红色mark的位置，从而获取到小车的位置
 
 
 def get_correct_value(values: list, threshold):
@@ -81,14 +83,14 @@ def get_coordinate(mark_pos_ofcamera: tuple, power_pos_ofcamera: tuple,
             y = math.sqrt(car_deepth ** 2 - (x - camera_pos_ofmap[0]) ** 2)
             # global FIRST
             # global CAR_X, CAR_Y
-            if len(FIRST) == 20:
-                CarVar.CAR_X, CarVar.CAR_Y = get_correct_value(FIRST, threshold=0.1)
+            if len(FIRST) == 5:
+                CarVar.CAR_X, CarVar.CAR_Y = get_correct_value(FIRST, threshold=0.1)  # 20个一组计算坐标
                 FIRST.clear()
             else:
                 # print(x, y/
-                if x > 0 and y > 0:
+                # print('color_track,lines 89', x, y)
+                if 0 < x <= 150 and 0 < y <= 1400:  # 获得小车坐标
                     FIRST.append([x, y/10.0])
-
 
 
 def main():
@@ -99,8 +101,6 @@ def main():
     cap1.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
     cap2.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))  # ret = cap.set(3, 640)  # X
     # ret = cap.set(4, 480)  # Y
-
-
 
     cv2.namedWindow("config", cv2.WINDOW_NORMAL)
     cv2.moveWindow("left", 600, 0)
@@ -137,7 +137,7 @@ def main():
         # 根据更正map对图片进行重构
         img1_rectified = cv2.remap(frame1, camera_configs.left_map1, camera_configs.left_map2, cv2.INTER_LINEAR)
         img2_rectified = cv2.remap(frame2, camera_configs.right_map1, camera_configs.right_map2, cv2.INTER_LINEAR)
-        cv2.imshow("megre", np.hstack((img1_rectified, img2_rectified)))
+        # cv2.imshow("megre", np.hstack((img1_rectified, img2_rectified)))
         # picmerge2(img1_rectified, img2_rectified)
         # stitcher = cv2.createStitcher(False)
         # (status, stitched) = stitcher.stitch([img1_rectified, img2_rectified])
@@ -158,7 +158,7 @@ def main():
         imgR = cv2.cvtColor(img2_rectified, cv2.COLOR_BGR2GRAY)
         # 根据阈值构建掩模
         mask1 = cv2.inRange(hsv1, blue_lower, blue_upper)  # 蓝色
-        mask2 = cv2.inRange(hsv1, yellow_lower, yellow_upper)  # 黄色
+        # mask2 = cv2.inRange(hsv1, yellow_lower, yellow_upper)  # 黄色
         mask3 = cv2.inRange(hsv1, red_lower, red_upper)  # 红色
 
         # inRange()：介于lower / upper之间的为白色，其余黑色
@@ -173,7 +173,7 @@ def main():
         # mask2 = cv2.dilate(mask2, None, iterations=2)  # 膨胀
         # mask = cv2.findContours(mask.copy())
         cnts1 = cv2.findContours(mask1.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[1]  # 寻找蓝色轮廓
-        cnts2 = cv2.findContours(mask2.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[1]  # 寻找黄色轮廓
+        # cnts2 = cv2.findContours(mask2.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[1]  # 寻找黄色轮廓
         cnts3 = cv2.findContours(mask3.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[1]  # 寻找红色轮廓
 
         num = cv2.getTrackbarPos("num", "config")  # 即最大视差值与最小视差值之差, 窗口大小必须是16的整数倍，int 型
@@ -220,37 +220,45 @@ def main():
 
         disparity = stereo.compute(imgL, imgR)
         dsp = cv2.normalize(disparity, disparity, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)
+
         # threeD = cv2.
         threeD = cv2.reprojectImageTo3D(disparity.astype(np.float32) / 16., camera_configs.Q)
         car_center = None
         if len(cnts1) > 0:
-            if len(cnts2) > 0:
-                c1 = max(cnts1, key=cv2.contourArea)  # 最大蓝色
-                c2 = max(cnts2, key=cv2.contourArea)  # 最大黄色
-                # ((x1, y1), radius1) = cv2.minEnclosingCircle(c1)  # 外接圆
-                # ((x2, y2), radius2) = cv2.minEnclosingCircle(c2)
-                M1 = cv2.moments(c1)  # 计算轮廓的矩
-                M2 = cv2.moments(c2)
-                # cv2.imshow("fame11", img1_rectified)
-                # M1 = get_color_center(img1_rectified, blue_lower, blue_upper)
-                if M1["m00"]:
-                    center1 = (int(M1["m10"] / M1["m00"]), int(M1["m01"] / M1["m00"]))  # 电池
-                    if M2["m00"]:
-                        center2 = (int(M2["m10"] / M2["m00"]), int(M2["m01"] / M2["m00"]))  # 车轮
-                        length = get_2point_distance(center1, center2, 2)
-                        if length < 400:
-                            car_center = (int((center1[0] + center2[0]) / 2), int((center1[1] + center2[1]) / 2))  # 取两点之间的
-                        else:
-                            print("目标丢失")
-                            # print("距离", length)
-                        # print("中心", car_center)
-                    else:
-                        print("没有黄色目标")
-                else:
-                    print("没有蓝色目标")
+            # if len(cnts2) > 0:
+            c1 = max(cnts1, key=cv2.contourArea)  # 最大蓝色
+            # c2 = max(cnts2, key=cv2.contourArea)  # 最大黄色
+            # ((x1, y1), radius1) = cv2.minEnclosingCircle(c1)  # 外接圆
+            # ((x2, y2), radius2) = cv2.minEnclosingCircle(c2)
+            M1 = cv2.moments(c1)  # 计算轮廓的矩
+            # M2 = cv2.moments(c2)
+            # cv2.imshow("fame11", img1_rectified)
+            # M1 = get_color_center(img1_rectified, blue_lower, blue_upper)
+            if M1["m00"]:
+                center1 = (int(M1["m10"] / M1["m00"]), int(M1["m01"] / M1["m00"]))  # 电池
+                # if M2["m00"]:
+                    # center2 = (int(M2["m10"] / M2["m00"]), int(M2["m01"] / M2["m00"]))  # 车轮
+                    # length = get_2point_distance(center1, center2, 2)
+                    # if length < 400:
+                # car_center = (int((center1[0] + center2[0]) / 2), int((center1[1] + center2[1]) / 2))  # 取两点之间的
+                car_center = (int(center1[0]), int(center1[1]))  # 取两点之间的
+            # else:
+            #     print("目标丢失")
+            #     CarVar.CAR_X, CarVar.CAR_Y = 0, 0
+                        # print("距离", length)
+                    # print("中心", car_center)
+                # else:
+                #     CarVar.CAR_X, CarVar.CAR_Y = 0, 0
+                #     print("没有黄色目标")
+            else:
+                CarVar.CAR_X, CarVar.CAR_Y = 0, 0
+                print("没有蓝色目标")
 
 
         cv2.imshow('frame1', dsp)
+        if Map.Flag:
+            cv2.imshow('car lines', Map.Pic)
+        # cv2.waitKey(1)
         if len(cnts3) > 0:
             c3 = max(cnts3, key=cv2.contourArea)
             M3 = cv2.moments(c3)
@@ -260,6 +268,7 @@ def main():
                 #         print(threeD.shape)
                 #         print(threeD)
                 if car_center:
+                    # 获取小车坐标
                     get_coordinate(red_center, car_center, camera_pos_ofmap=CAMERA_POS_OF_MAP, threeD=threeD,
                                    mark_pos_ofmap=MARK_POS_OF_MAP, car_center=car_center)
                     # print(CAR_X, CAR_Y)

@@ -6,7 +6,7 @@
 
 from cv2 import cv2
 import numpy as np
-from pc import camera_configs2 as camera_configs
+from pc.camera_dir import camera_configs2 as camera_configs
 # from pc import camera_configs
 
 # import camera_configs  # 摄像头的标定数据

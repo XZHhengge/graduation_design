@@ -1,9 +1,8 @@
 # -*- coding:utf-8 -*-
 from typing import List
 import matplotlib.pyplot as plt
-from itertools import combinations
 import numpy as np
-from numpy import array, int32
+from numpy import array
 import cv2
 
 # 高斯滤波核大小
@@ -20,27 +19,37 @@ min_line_len = 40
 max_line_gap = 20
 
 
+def process_img(img):
+    # gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    blur_gray = cv2.GaussianBlur(img, (blur_ksize, blur_ksize), 1)
+    edges = cv2.Canny(blur_gray, canny_lth, canny_hth)
+
+
 def process_img2(img):
     # 1. 灰度化、滤波和Canny
 
     # print(img)
     # img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    # cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     blur_gray = cv2.Canny(img, canny_lth, canny_hth)
 
     blur_gray = cv2.GaussianBlur(blur_gray, (blur_ksize, blur_ksize), 0)
     # cv2.imshow("eeaa", edges)
     # cv2.imshow("edges", edges)
-    # 2. 2. 标记四个坐标点用于ROI截取
+    # 2. 2. 标记坐标点用于ROI截取
     # points = np.array([[0, 0], [0, 700], [750, 0], [750, 700]], np.int32)  # 全屏
-    points = np.array([[0, 370], [0, 240], [130, 150], [470, 150], [630, 240], [630, 370]], np.int32)
+    points = np.array([[0, 370], [0, 150], [600, 150], [600, 370]], np.int32)
     # points = np.array([[0, 500], [0, 100], [630, 500], [630, 100]], np.int32)
     # points = np.array([[0, 120], [0, 240], [640, 240], [640, 120]], np.int32) # half
     roi_edges = roi_mask(blur_gray, [points])
     # 3. 霍夫直线提取
     drawing, lines = hough_lines(roi_edges, rho, theta, threshold, min_line_len, max_line_gap)
+    # print(len(lines), '线条数量')
     # 4. 车道拟合计算
     if lines:
-        draw_lanes2(drawing, lines, threshold=0.3)     # 画出直线检测结果
+        draw_lanes2(drawing, lines, threshold=0.1)  # 画出直线检测结果
+    else:
+        print('no lines')
     # 5. 最终将结果合在原图上
     # result = cv2.addWeighted(img, 0.9, drawing, 0.2, 0)
     # cv2.waitKey(0)
@@ -69,8 +78,6 @@ def hough_lines(img, rho, theta, threshold, min_line_len, max_line_gap):
         lines = lines.tolist()
         draw_lanes2(drawing, lines, threshold=0.1)  # 画出直线检测结果
     return drawing, lines
-
-
 
 
 def show_lines_data(lines: List, label: str):
@@ -105,8 +112,7 @@ def draw_lanes2(img, lines, threshold):
                     verdict.append(line)
 
     if (len(left_lines) <= 0 or len(right_lines) <= 0):
-        return
-
+        print('无倾斜线条')
 
     clean_lines(left_lines, 0.1)
     clean_lines(right_lines, 0.1)
@@ -152,7 +158,7 @@ def draw_lines(img, lines, dir: int):
     elif dir == 3:
         color = [101, 198, 39]  # 绿色
     elif dir == 4:
-        color = [255, 255, 255]
+        color = [110, 110, 255]
     # print(lines)
     if len(lines) > 0:
         if not isinstance(lines[0], int):
@@ -180,7 +186,7 @@ def count_line_cluster(lines, r: int) -> int:
                     break
                 else:
                     break
-    print(len(count_list))
+    print(len(count_list), '簇数')
     return len(count_list)
 
 
@@ -200,7 +206,7 @@ def average_lines(lines: list) -> list:
 def clean_lines(lines, threshold):
     for index, line in enumerate(lines):
         for x1, y1, x2, y2 in line:
-            if np.sqrt((x1 - x2)**2 + (y1 - y2)**2) < 100:
+            if np.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2) < 100:
                 # print(line)
                 lines.pop(index)
 
@@ -261,10 +267,11 @@ def get_x_y(point):
     y = array(point[1]) + g * t  # 线段纵坐标平均取11个点
     return x, y, len(t)
 
+
 if __name__ == '__main__':
     # file = '/home/perfectman/PycharmProjects/graduation_design/raspberryPi/straight.jpg'
     # file = '/home/perfectman/PycharmProjects/graduation_design/raspberryPi/crossroads.jpg'
-    file = '/home/perfectman/PycharmProjects/graduation_design/raspberryPi/turn_left.jpg'
+    file = '/home/perfectman/PycharmProjects/graduation_design/raspberryPi/foo.jpg'
     img = cv2.imread(file)
 
     img = cv2.resize(img, (640, 480))
