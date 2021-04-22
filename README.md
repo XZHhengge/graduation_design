@@ -1,5 +1,9 @@
 ## 基于双目定位的自动驾驶小车
 [github链接](https://github.com/XZHhengge/graduation_design)
+
+##  视频演示
+[B站地址](https://www.bilibili.com/video/BV1fv41187J7/)
+
 ##  基本构思：
 1.使用树莓派作为小车的操作中心，树莓派通过摄像头进行道路的检测，进而使用PWM模式对L298N电机驱动模块进行对小车轮子的前进、后退、左右转弯。
 2.主机使用MATLAB对双目摄像头进行标定，使用SGBM/BM算法进行对小车的空间的三维坐标的建立。
@@ -10,43 +14,9 @@
 
 
 把raspberryPi文件夹移动树莓派，分别运行mian.py
-.
-├── car2.png  小车图  
-├── config.py   配置文件
-├── main.py
-├── paint1.jpg   地图
-├── pc  主机下文件
-│   ├── camera_dir
-│   │   ├── camera_configs2.py  # 摄像头标定后参数
-│   │   ├── color_track.py  #  双目摄像头定位
-│   │   ├── depth2.py        # 单个运行标定后效果文件
-│   │   ├── depth.py         # 同上
-│   │   ├── get_hsv.py       #  单个运行调整参数得到hsv
-│   │   └── take_piture.py   #  同上上
-│   ├── graph_dir             #  地图规划信息dir
-│   │   ├── Graph3.py         # 地图规划sample脚本
-│   │   └── Graph.py          #  被调用的地图规划
-│   ├── process_image          # 图像处理dir，先在主机上写图像处理的代码
-│   │   └── process.py          # 图像处理
-│   ├── pygame_dir
-│   │   ├── car.png             # 小车图
-│   │   └── pygame_display.py   # pygame显示
-│   ├── raspPi                  #与树莓派相关
-│   ├── Raspberry_Pi3_GIOP.png
-│   └── server_stream.py
-├── raspberryPi         # 树莓派里
-│   ├── config.py
-│   ├── distance_check.py
-│   ├── drive_car.py
-│   ├── main.py
-│   ├── path.py
-│   ├── process_img.py
-│   ├── README.md
-│   ├── requirements.txt
-│   ├── stream_client.py
-│   └── test.py
-├── README.md
-└── requirements.txt
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20210422192933826.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwOTY1MTc3,size_16,color_FFFFFF,t_70)
+
 
 ##  未来构想图
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/20200922165719852.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwOTY1MTc3,size_16,color_FFFFFF,t_70#pic_center)
