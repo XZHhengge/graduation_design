@@ -30,7 +30,7 @@ cv2.createTrackbar("UV", "tracks", 255, 255, nothing)
 while 1:
 
     ret, frame1 = camera1.read()
-    ret, frame2 = camera2.read()
+    ret1, frame2 = camera2.read()
     img1_rectified = cv2.remap(frame1, camera_configs.left_map1, camera_configs.left_map2, cv2.INTER_LINEAR)
     # img2_rectified = cv2.remap(frame2, camera_configs.right_map1, camera_configs.right_map2, cv2.INTER_LINEAR)
     # cv2.imshow("left", img1_rectified)

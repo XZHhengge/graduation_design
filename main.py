@@ -12,9 +12,6 @@ if __name__ == '__main__':
     t3.start()
     t2 = threading.Thread(target=color_track.main)
     t2.start()
-    # t2.join()
     t1 = threading.Thread(target=pygame_display.creat)
     t1.start()
-    # t1.join()
-
 

@@ -112,10 +112,11 @@ while True:
         blockSize=blockSize,
         P1=8 * 3 * blockSize ** 2,
         P2=32 * 3 * blockSize ** 2,
+        # uniquenessRatio=5,
         # mode=cv2.STEREO_SGBM_MODE_HH,
-        # mode=cv2.STEREO_SGBM_MODE_HH4
+        mode=cv2.STEREO_SGBM_MODE_HH4
         # mode=cv2.STEREO_SGBM_MODE_SGBM,
-        mode=cv2.STEREO_SGBM_MODE_SGBM_3WAY,
+        # mode=cv2.STEREO_SGBM_MODE_SGBM_3WAY,
     )
     # 8\*number_of_image_channels\*SADWindowSize\*SADWindowSize
     # 32\*number_of_image_channels\*SADWindowSize\*SADWindowSize

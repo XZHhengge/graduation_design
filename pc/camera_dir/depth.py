@@ -1,8 +1,7 @@
 # -*- coding:utf-8 -*-
 # Author: cmzz
 # @Time :2020/9/21
-# 该脚本实现深度图以及点击深度图测量像素点的真实距离
-# 可以运行看到效果之后最好自己重新标定一次
+#  BM匹配算法
 
 from cv2 import cv2
 import numpy as np

@@ -10,6 +10,7 @@ VIR_SIZE_TIMES_OF_REALITY_SIZE = 5  # 虚拟的地图是真实地图 比例
 REALITY_SIZE_OF_MAP = (150, 140)  # 宽 × 高
 REALITY_SIZE_OF_CAR = (27, 15)  # 宽 × 高
 
+PIX_TIME_OF_REAl = 340  # 像素中大小是真实的多少倍，比如真实地图1.5*1.4,像素为640*480,1.4*340-=476，最大能显示倍数为340，这值个用于在像素中计算真实距离
 
 MAP_WIDTH = REALITY_SIZE_OF_MAP[0] * VIR_SIZE_TIMES_OF_REALITY_SIZE  # 根据真实地图 5:1，真实地图单位cm
 MAP_HEIGHT = REALITY_SIZE_OF_MAP[1] * VIR_SIZE_TIMES_OF_REALITY_SIZE  # 相机在这一边
@@ -17,9 +18,19 @@ MAP_HEIGHT = REALITY_SIZE_OF_MAP[1] * VIR_SIZE_TIMES_OF_REALITY_SIZE  # 相机�
 CAR_SIZE = (REALITY_SIZE_OF_CAR[0] * VIR_SIZE_TIMES_OF_REALITY_SIZE,
             REALITY_SIZE_OF_CAR[1] * VIR_SIZE_TIMES_OF_REALITY_SIZE)
 
+
+# 俯拍摄像头的高度/mm
+CAMERA_HIGH = 1460
+# 俯拍摄像头与地图的距离
+CAMERA_LENGTH = 600
+
+
+# 收集deep信息时间与次数
+COLLECT_TIME, COLLECT_TIMES = 20, 40
+
 # 在线画画 http://www.pixvi.net/piline/drawer.php
 '''配置pygame背景图'''
-PYGAME_BACKGROUND_FILE_PATH = './paint1.jpg'
+PYGAME_BACKGROUND_FILE_PATH = './new_map_2.png'
 if not os.path.exists(PYGAME_BACKGROUND_FILE_PATH[0:-4] + '_resize' + '.jpg') and os.path.exists(
         PYGAME_BACKGROUND_FILE_PATH):
     import cv2
@@ -60,7 +71,8 @@ EDGE_LIST = [
 
 '''摄像头配置'''
 # 红色标记和相机在真实地图上的坐标
-CAMERA_POS_OF_MAP = (75, 0)
+# CAMERA_POS_OF_MAP = (75, 0)
+CAMERA_POS_OF_MAP = (75, -100)
 MARK_POS_OF_MAP = (150, 140)
 # 定蓝色的HSV阈值
 blue_lower = np.array([80, 175, 100])
@@ -70,9 +82,9 @@ blue_upper = np.array([130, 255, 255])
 yellow_lower = np.array([20, 132, 86])
 yellow_upper = np.array([31, 255, 255])
 
-# 黄和蓝色
-# lower = np.array([20, 132, 152])
-# upper = np.array([33, 255, 255])
+# 绿色
+green_lower = np.array([44, 46, 28])
+green_upper = np.array([79, 255, 255])
 # 黑色
 # lower_black = np.array([0, 0, 0])
 # upper_black = np.array([180, 255, 30])
@@ -95,7 +107,9 @@ red_upper = np.array([255, 255, 255])
 
 class CarVar:
     CAR_X, CAR_Y = 0, 0
-
+    HIGH = 0
+    # 修正值
+    CHANGE_VALUE = ''
 
 class Map:
     SOURCE, TARGET = 0, 0
@@ -106,3 +120,5 @@ class Map:
 # tcp连接
 class Tcp:
     CONN = None
+
+

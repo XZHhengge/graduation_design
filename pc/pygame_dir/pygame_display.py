@@ -12,12 +12,15 @@ left = 20
 right = 20
 
 
+# 修正值
+
+
 # 初始化
 def creat():
     pygame.init()
 
     # 创建一个窗口
-    screen = pygame.display.set_mode([MAP_WIDTH, MAP_HEIGHT+100])  # 宽，高
+    screen = pygame.display.set_mode([MAP_WIDTH, MAP_HEIGHT + 100])  # 宽，高
     # 用白色填充屏幕
     screen.fill(THECOLORS['white'])  # 背景颜色
     background = pygame.image.load(PYGAME_BACKGROUND_FILE_PATH[0:-4] + '_resize' + '.jpg')  # 导入背景图
@@ -38,18 +41,17 @@ def creat():
     text2 = ''
     done = False
     # 文本输入框
-    input_box1 = pygame.Rect(MAP_WIDTH/(VIR_SIZE_TIMES_OF_REALITY_SIZE+2), MAP_HEIGHT+50, 32, 32)
-    input_box2 = pygame.Rect(MAP_WIDTH*3/(VIR_SIZE_TIMES_OF_REALITY_SIZE+2), MAP_HEIGHT+50, 32, 32)
-    button = pygame.Rect(MAP_WIDTH*5/(VIR_SIZE_TIMES_OF_REALITY_SIZE+2), MAP_HEIGHT+50, 44, 30)
+    input_box1 = pygame.Rect(MAP_WIDTH / (VIR_SIZE_TIMES_OF_REALITY_SIZE + 2), MAP_HEIGHT + 50, 32, 32)
+    input_box2 = pygame.Rect(MAP_WIDTH * 3 / (VIR_SIZE_TIMES_OF_REALITY_SIZE + 2), MAP_HEIGHT + 50, 32, 32)
+    button = pygame.Rect(MAP_WIDTH * 5 / (VIR_SIZE_TIMES_OF_REALITY_SIZE + 2), MAP_HEIGHT + 50, 44, 30)
     # 加载小车的图片，更新图像, 小车图片也是按照5：1
     # pngFileName = '/home/perfectman/PycharmProjects/graduation_design/pc/pygame_dir/car2.png'
-
 
     pngFileName = './car2.png'
     car = pygame.image.load(pngFileName)
 
     # 获取小车的边边
-    carRect = car.get_rect()
+    # carRect = car.get_rect()
 
     # 翻转
 
@@ -74,10 +76,14 @@ def creat():
                     active3 = not active3
                     button_color = button_color_active
                     if Tcp.CONN:
-                        Tcp.CONN.send(bytes(str(len(text+text2)).ljust(20), encoding='utf-8'))
-                        Tcp.CONN.send(bytes(text+text2, encoding='utf-8'))
+                        Tcp.CONN.send(bytes(str(len(text + text2)).ljust(20), encoding='utf-8'))
+                        Tcp.CONN.send(bytes(text + text2, encoding='utf-8'))
                         print(text, text2)
                         print('click the go')
+                    else:
+                        # 修正值
+                        print('修正值', text)
+                        CarVar.CHANGE_VALUE = text
                 else:
                     active, active2, active3 = False, False, False
                 # Change the current color of the input box.
@@ -106,26 +112,26 @@ def creat():
                 if event.key == pygame.K_INSERT:
                     left += 1
                     if Tcp.CONN and 100 > left > 10:
-                        Tcp.CONN.send(bytes(str(len('left'+str(left))).ljust(20), encoding='utf-8'))
-                        Tcp.CONN.send(bytes('left'+str(left), encoding='utf-8'))
+                        Tcp.CONN.send(bytes(str(len('left' + str(left))).ljust(20), encoding='utf-8'))
+                        Tcp.CONN.send(bytes('left' + str(left), encoding='utf-8'))
                     print('left up')
                 elif event.key == pygame.K_DELETE:
                     left -= 1
                     if Tcp.CONN and 100 > left > 10:
-                        Tcp.CONN.send(bytes(str(len('left'+str(left))).ljust(20), encoding='utf-8'))
-                        Tcp.CONN.send(bytes('left'+str(left), encoding='utf-8'))
+                        Tcp.CONN.send(bytes(str(len('left' + str(left))).ljust(20), encoding='utf-8'))
+                        Tcp.CONN.send(bytes('left' + str(left), encoding='utf-8'))
                     print('left down')
                 elif event.key == pygame.K_PAGEUP:
                     right += 1
                     if Tcp.CONN and 100 > right > 10:
-                        Tcp.CONN.send(bytes(str(len('right'+str(right))).ljust(20), encoding='utf-8'))
-                        Tcp.CONN.send(bytes('right'+str(right), encoding='utf-8'))
+                        Tcp.CONN.send(bytes(str(len('right' + str(right))).ljust(20), encoding='utf-8'))
+                        Tcp.CONN.send(bytes('right' + str(right), encoding='utf-8'))
                     print('right up')
                 elif event.key == pygame.K_PAGEDOWN:
                     right -= 1
                     if Tcp.CONN and 100 > right > 10:
-                        Tcp.CONN.send(bytes(str(len('right'+str(right))).ljust(20), encoding='utf-8'))
-                        Tcp.CONN.send(bytes('right'+str(right), encoding='utf-8'))
+                        Tcp.CONN.send(bytes(str(len('right' + str(right))).ljust(20), encoding='utf-8'))
+                        Tcp.CONN.send(bytes('right' + str(right), encoding='utf-8'))
                     print('right down')
                 elif event.key == pygame.K_SPACE:
                     if Tcp.CONN:
@@ -162,21 +168,6 @@ def creat():
         #         Tcp.CONN.send(bytes(str(len(str(right))).ljust(20), encoding='utf-8'))
         #         Tcp.CONN.send(bytes(str(right), encoding='utf-8'))
         #     print('pre left down')
-        # # 前进、后退
-        # if pressed_keys[K_PAGEUP]:
-        #     movement_direction = +1.
-        #     print('pre right up')
-        # if pressed_keys[K_PAGEDOWN]:
-        #     movement_direction = -1.
-        #     print('pre right down')
-        # 时间延迟
-        # pygame.time.delay(20)
-        # # 覆盖痕迹
-        # pygame.draw.rect(screen, THECOLORS['white'], [car_x, car_y, 100, 100], 0)
-        # carRect = carRect.move(speed)
-        # 小鸟的位置
-        # car_x = car_x + car_speed_x
-        # car_y = car_y + car_speed_y
         # 左右边缘
         screen.fill(THECOLORS['white'])  # 背景颜色
         screen.blit(background, (0, 0))
@@ -186,6 +177,9 @@ def creat():
             CAR_X = VIR_SIZE_TIMES_OF_REALITY_SIZE * CAR_X - CAR_SIZE[0] / 2  # 减除半个车距
             CAR_Y = -((CAR_Y * VIR_SIZE_TIMES_OF_REALITY_SIZE) - MAP_HEIGHT + CAR_SIZE[1] / 2)
             screen.blit(car, [CAR_X, CAR_Y])
+            if CarVar.HIGH:
+                high_info = font.render('high:{}cm'.format(str(CarVar.HIGH / 10)[:5]), True, (0, 0, 255), (0, 255, 0))
+                screen.blit(high_info, [CAR_X + 25, CAR_Y - 25])
             # print(int(CAR_X), int(CAR_Y), 'pygame')
         # if car_x > 750 or car_x < 0:
         #     car_speed_x = -car_speed_x
@@ -196,20 +190,17 @@ def creat():
         txt_surface2 = font.render(text2, True, color2)
         button_surface = font.render('GO', True, button_color)
 
-
-
-        width1 = max(100, txt_surface.get_width()+10)
+        width1 = max(100, txt_surface.get_width() + 5)
         input_box1.w = width1
-        width2 = max(100, txt_surface2.get_width()+10)
+        width2 = max(100, txt_surface2.get_width() + 5)
         input_box2.w = width2
-        # width3 = max(100, button_surface.get_width())
-        # button.w = width3
-
+        width3 = max(100, button_surface.get_width())
+        button.w = width3
 
         # Blit the text.
-        screen.blit(txt_surface, (input_box1.x+5, input_box1.y+5))
-        screen.blit(txt_surface2, (input_box2.x+5, input_box2.y+5))
-        screen.blit(button_surface, (button.x+5, button.y+5))
+        screen.blit(txt_surface, (input_box1.x + 5, input_box1.y + 5))
+        screen.blit(txt_surface2, (input_box2.x + 5, input_box2.y + 5))
+        screen.blit(button_surface, (button.x + 5, button.y + 5))
         # Blit the input_box rect.
         pygame.draw.rect(screen, color1, input_box1, 2)
         pygame.draw.rect(screen, color2, input_box2, 2)
