@@ -1,5 +1,16 @@
 ## 基于双目定位的自动驾驶小车
-[github链接](https://github.com/XZHhengge/graduation_design)
+##  视频演示
+[B站地址](https://www.bilibili.com/video/BV1fv41187J7/)
+
+[video(video-oZ53MPPF-1617625490080)(type-bilibili)(url-https://player.bilibili.com/player.html?aid=247402960)(image-https://ss.csdn.net/p?http://i2.hdslb.com/bfs/archive/5b566020d323468815b951661f796a8fb232fc2c.jpg)(title-小车自动驾驶)]
+
+[video(video-ep2DWAtF-1617625530025)(type-bilibili)(url-https://player.bilibili.com/player.html?aid=799900517)(image-https://ss.csdn.net/p?http://i2.hdslb.com/bfs/archive/69d2246e2902499b54dcce535bfb069d25b48f08.jpg)(title-小车自动驾驶录屏)]
+
+
+[video(video-Xn2LKDaC-1617625906265)(type-bilibili)(url-https://player.bilibili.com/player.html?aid=844887388)(image-https://ss.csdn.net/p?http://i1.hdslb.com/bfs/archive/ad1cc0a52d6e081246261c89f3df15ca5dcf2098.jpg)(title-小车路线识别)]
+
+
+
 ##  基本构思：
 1.使用树莓派作为小车的操作中心，树莓派通过摄像头进行道路的检测，进而使用PWM模式对L298N电机驱动模块进行对小车轮子的前进、后退、左右转弯。
 2.主机使用MATLAB对双目摄像头进行标定，使用SGBM/BM算法进行对小车的空间的三维坐标的建立。
@@ -10,43 +21,8 @@
 
 
 把raspberryPi文件夹移动树莓派，分别运行mian.py
-.
-├── car2.png  小车图  
-├── config.py   配置文件
-├── main.py
-├── paint1.jpg   地图
-├── pc  主机下文件
-│   ├── camera_dir
-│   │   ├── camera_configs2.py  # 摄像头标定后参数
-│   │   ├── color_track.py  #  双目摄像头定位
-│   │   ├── depth2.py        # 单个运行标定后效果文件
-│   │   ├── depth.py         # 同上
-│   │   ├── get_hsv.py       #  单个运行调整参数得到hsv
-│   │   └── take_piture.py   #  同上上
-│   ├── graph_dir             #  地图规划信息dir
-│   │   ├── Graph3.py         # 地图规划sample脚本
-│   │   └── Graph.py          #  被调用的地图规划
-│   ├── process_image          # 图像处理dir，先在主机上写图像处理的代码
-│   │   └── process.py          # 图像处理
-│   ├── pygame_dir
-│   │   ├── car.png             # 小车图
-│   │   └── pygame_display.py   # pygame显示
-│   ├── raspPi                  #与树莓派相关
-│   ├── Raspberry_Pi3_GIOP.png
-│   └── server_stream.py
-├── raspberryPi         # 树莓派里
-│   ├── config.py
-│   ├── distance_check.py
-│   ├── drive_car.py
-│   ├── main.py
-│   ├── path.py
-│   ├── process_img.py
-│   ├── README.md
-│   ├── requirements.txt
-│   ├── stream_client.py
-│   └── test.py
-├── README.md
-└── requirements.txt
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20210422192933826.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwOTY1MTc3,size_16,color_FFFFFF,t_70)
+
 
 ##  未来构想图
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/20200922165719852.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwOTY1MTc3,size_16,color_FFFFFF,t_70#pic_center)
@@ -87,6 +63,8 @@ GPIO.setmode(GPIO.BOARD)
 [摄像机标定和立体标定](https://blog.csdn.net/sunanger_wang/article/details/7744025)
 
 **其中：**
+Matlab导出参数如下：
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20210423105406640.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwOTY1MTc3,size_16,color_FFFFFF,t_70)
 
 ```python
 左右相机畸变系数:[k1, k2, p1, p2, k3] 
@@ -159,6 +137,21 @@ def get_coordinate(mark_pos_ofcamera: tuple, power_pos_ofcamera: tuple,
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/20201014095217807.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwOTY1MTc3,size_16,color_FFFFFF,t_70#pic_center)
 ##  真实地图如下
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/20210404193056935.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwOTY1MTc3,size_16,color_FFFFFF,t_70)
+
+
+小车的定位有有两种模式，一个是平拍模式，另外一种是俯拍模式，这是为了探讨道路上主要的两种摄像头。
+##  3.8.1 平拍定位
+由HSV颜色追踪可实时获取到小车蓝色轮框的质心位置，也就是在像素坐标的位置，通过SGBM算法和转换可以获得到深度距离，想要获得小车相对于相机的地图坐标，还需要相对的参考物来进行计算和对照，用一个mark标记固定在一个确定的位置上，通过已知的世界级坐标和像素坐标的mark标记与小车之间比例，可以计算出小车的地图坐标，真实行车地图如图3.23真实地图所示红色箭头指向的是camera，蓝色箭头指向的是mark，白色的是地图，对应的俯视图数学平面图如图3.24所示：
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20210628162846328.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwOTY1MTc3,size_16,color_FFFFFF,t_70)
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20210628162911792.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwOTY1MTc3,size_16,color_FFFFFF,t_70)
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20210628162934164.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwOTY1MTc3,size_16,color_FFFFFF,t_70)
+##  3.8.2 俯拍定位	
+俯视角与平时角的不同在于，俯视角可以获得到比平时角度获得更多的信息，在相机中俯拍可以直接通过透视变换、线性变换与计算可以定位到地图中小车，这个过程可以用单目相机来完成且不需要标记物辅助定位。如图3.26所示，左边为俯拍视角，右边为经过透视变换后的视角。
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20210628163000142.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwOTY1MTc3,size_16,color_FFFFFF,t_70)
+![在这里插入图片描述](https://img-blog.csdnimg.cn/2021062816301456.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwOTY1MTc3,size_16,color_FFFFFF,t_70)
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20210628163057593.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwOTY1MTc3,size_16,color_FFFFFF,t_70)
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20210628163116266.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwOTY1MTc3,size_16,color_FFFFFF,t_70)
+
 ## opencv画车道参考：
 [[1]](http://codec.wang/#/opencv/basic/challenge-03-lane-road-detection)
 [[2]](https://github.com/Sentdex/pygta5/blob/master/Tutorial%20Codes/Part%201-7/part-5-line-finding.py)
